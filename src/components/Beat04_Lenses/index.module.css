@@ -1,0 +1,180 @@
+.stage {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--bg, var(--color-bg));
+  padding: 0 var(--space-6);
+}
+
+.track {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 22vh 0 24vh;
+  will-change: transform;
+}
+
+.intro {
+  margin: 0 auto var(--space-12, var(--space-9));
+  color: var(--ink, var(--color-text-secondary));
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-size: var(--text-xl, 22px);
+  line-height: 1.6;
+  text-align: center;
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.lensList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.lens {
+  display: grid;
+  min-height: 124px;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: var(--space-5);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.colorBar {
+  width: 8px;
+  height: 100%;
+  align-self: stretch;
+  background: var(--lens-color);
+  transform-origin: top center;
+  transform: scaleY(var(--bar-progress));
+}
+
+.lensContent {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  opacity: var(--content-progress);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.lensHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.lensHeader h2 {
+  margin: 0;
+  color: var(--lens-color);
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-2xl, 32px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.lensHeader p {
+  margin: 0;
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-base, 15px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.english,
+.italian {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-base, 15px);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.english {
+  color: var(--ink, var(--color-text-secondary));
+}
+
+.italian {
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-style: italic;
+}
+
+.tensionNote {
+  max-width: 600px;
+  margin: var(--space-12, var(--space-9)) auto 0;
+  color: var(--ink, var(--color-text-secondary));
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-size: var(--text-lg, 18px);
+  line-height: 1.6;
+  text-align: center;
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.tensionNote p {
+  margin: 0;
+}
+
+.tensionNote p + p {
+  margin-top: var(--space-3);
+}
+
+.tensionNote strong {
+  font-weight: 600;
+}
+
+.tensionNote em {
+  font-style: italic;
+}
+
+.ambiguityNote {
+  max-width: 540px;
+  margin: var(--space-8) auto 0;
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-sm, 13px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.65;
+  text-align: center;
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.quotedWord {
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .stage {
+    padding: 0 var(--space-5);
+  }
+
+  .track {
+    padding-top: 18vh;
+  }
+
+  .lens {
+    min-height: 140px;
+    gap: var(--space-4);
+  }
+
+  .lensHeader h2 {
+    font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    will-change: auto;
+  }
+
+  .intro,
+  .lens,
+  .lensContent,
+  .tensionNote,
+  .ambiguityNote {
+    transition: none;
+  }
+}
