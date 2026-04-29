@@ -15,7 +15,7 @@ import { Beat06Map } from "./components/Beat06_Map";
 export default function App() {
   return (
     <main>
-      <ScrollSection vh={2} id="beat-01" label="Beat 01 — Opening">
+      <ScrollSection vh={1.6} id="beat-01" label="Beat 01 — Opening">
         <Beat01Opening />
       </ScrollSection>
       <ScrollSection vh={2} id="beat-02" label="Beat 02 — Method">
