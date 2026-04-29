@@ -1,8 +1,6 @@
-import { useEffect, useRef, type CSSProperties } from "react";
-import * as THREE from "three";
-import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { useRef, useEffect, type CSSProperties } from "react";
 import { LENSES, LENS_TOKEN, type Lens } from "./LensSwatch";
-import { FRAG, VERT } from "./BlobV2Shaders";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 import styles from "./BlobV2.module.css";
 
 export type BlobV2Weights = Record<Lens, number>;
@@ -17,77 +15,32 @@ export type BlobV2Props = {
   ariaLabel?: string;
 };
 
-type Drift = {
-  ax: number;
-  ay: number;
-  px: number;
-  py: number;
-  rx: number;
-  ry: number;
+function normalizeWeights(weights: BlobV2Weights): Record<string, number> {
+  const raw = LENSES.map((lens) => Math.max(0, weights[lens] ?? 0));
+  const total = raw.reduce((s, v) => s + v, 0) || 1;
+  const norm: Record<string, number> = {};
+  LENSES.forEach((lens, i) => {
+    norm[lens] = raw[i] / total;
+  });
+  return norm;
+}
+
+// Hue-aware angular positions — warm colors (red, orange, yellow) spread 120° apart;
+// analogous pairs maximally separated: purple↔red 180°, orange↔yellow 180°.
+const LENS_BASE_ANGLE: Record<string, number> = {
+  emotional: 0,      // purple  — opposite tension (red)
+  infrastructure: 60, // orange  — between purple and cyan, 180° from yellow
+  action: 120,       // cyan    — between orange and red
+  tension: 180,      // red     — opposite purple
+  relational: 240,   // yellow  — opposite orange
+  sensory: 300,      // mint    — between yellow and purple
 };
 
-function seededUnit(seed: number): number {
-  const value = Math.sin((seed + 1) * 12.9898) * 43758.5453;
-  return value - Math.floor(value);
-}
-
-function defaultPositions() {
-  const eccentricity = 0.42;
-  return LENSES.map((_, i) => {
-    const theta = (i / LENSES.length) * Math.PI * 2 - Math.PI / 2;
-    return [eccentricity * Math.cos(theta), eccentricity * Math.sin(theta)] as const;
+function spotOffsets(seed: number) {
+  return LENSES.map((lens) => {
+    const rad = (LENS_BASE_ANGLE[lens] + seed * 45) * (Math.PI / 180);
+    return { x: Math.cos(rad) * 35, y: Math.sin(rad) * 35 };
   });
-}
-
-function makeDrift(seed: number): Drift[] {
-  return LENSES.map((_, i) => ({
-    ax: 0.05 + seededUnit(seed + i * 13) * 0.04,
-    ay: 0.045 + seededUnit(seed + i * 17) * 0.04,
-    px: seededUnit(seed + i * 19) * Math.PI * 2,
-    py: seededUnit(seed + i * 23) * Math.PI * 2,
-    rx: 0.025 + seededUnit(seed + i * 29) * 0.02,
-    ry: 0.025 + seededUnit(seed + i * 31) * 0.02,
-  }));
-}
-
-function parseCssColor(color: string): THREE.Vector3 {
-  const trimmed = color.trim();
-  if (trimmed.startsWith("#")) {
-    const hex = trimmed.replace("#", "");
-    const normalized =
-      hex.length === 3
-        ? hex
-            .split("")
-            .map((part) => part + part)
-            .join("")
-        : hex;
-    return new THREE.Vector3(
-      parseInt(normalized.slice(0, 2), 16) / 255,
-      parseInt(normalized.slice(2, 4), 16) / 255,
-      parseInt(normalized.slice(4, 6), 16) / 255,
-    );
-  }
-
-  const match = trimmed.match(/rgba?\(([^)]+)\)/);
-  if (match) {
-    const [r, g, b] = match[1].split(",").map((part) => parseFloat(part));
-    return new THREE.Vector3(r / 255, g / 255, b / 255);
-  }
-
-  return new THREE.Vector3(0.5, 0.5, 0.5);
-}
-
-function readToken(token: string): THREE.Vector3 {
-  const value = getComputedStyle(document.documentElement)
-    .getPropertyValue(token)
-    .trim();
-  return parseCssColor(value || "#9A9A9A");
-}
-
-function weightsArray(weights: BlobV2Weights): number[] {
-  const raw = LENSES.map((lens) => Math.max(0, weights[lens] ?? 0));
-  const total = raw.reduce((sum, value) => sum + value, 0) || 1;
-  return raw.map((value) => value / total);
 }
 
 export function BlobV2({
@@ -99,118 +52,104 @@ export function BlobV2({
   style,
   ariaLabel,
 }: BlobV2Props) {
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const reducedMotion = useReducedMotion();
   const shouldPause = paused || reducedMotion;
 
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const spotRefs = useRef<(HTMLDivElement | null)[]>(
+    Array(LENSES.length).fill(null),
+  );
+
+  const norm = normalizeWeights(weights);
+  const offsets = spotOffsets(seed);
+  const blurBase = Math.round(size * 0.12);
+  const blurSpot = Math.round(size * 0.1);
+
+  // Base glow uses the dominant lens so the blob's center reflects actual data
+  const dominantLens = LENSES.reduce(
+    (best, lens) => ((weights[lens] ?? 0) > (weights[best] ?? 0) ? lens : best),
+    LENSES[0],
+  );
+
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (shouldPause) {
+      if (wrapperRef.current) wrapperRef.current.style.transform = "";
+      spotRefs.current.forEach((el) => {
+        if (el) el.style.transform = "";
+      });
+      return;
+    }
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      premultipliedAlpha: true,
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    renderer.setSize(size, size);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    camera.position.z = 1;
-
-    const colours = LENSES.map((lens) => readToken(LENS_TOKEN[lens]));
-    const positions = LENSES.map(() => new THREE.Vector2());
-    const weightValues = new Float32Array(weightsArray(weights));
-    const basePositions = defaultPositions();
-    const drift = makeDrift(seed);
-
-    const uniforms = {
-      uColours: { value: colours },
-      uPositions: { value: positions },
-      uWeights: { value: weightValues },
-      uTime: { value: 0 },
-      uBlend: { value: 0.55 },
-      uOpacity: { value: 1 },
-      uEdgeSoftness: { value: 0.87 },
-      uBreath: { value: 1 },
-      uSaturation: { value: 1.05 },
-      uWobble: { value: 1 },
-      uWobbleSeed: { value: seededUnit(seed + 97) },
-    };
-
-    const material = new THREE.ShaderMaterial({
-      vertexShader: VERT,
-      fragmentShader: FRAG,
-      uniforms,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-      premultipliedAlpha: true,
-    });
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-
-    let raf = 0;
+    const offsets = spotOffsets(seed);
+    const breathPeriod = 6 + (seed % 4);
     const startTs = performance.now();
+    let raf = 0;
 
-    const render = (now: number) => {
-      const time = (now - startTs) / 1000;
-      uniforms.uTime.value = time;
+    const animate = (now: number) => {
+      const t = (now - startTs) / 1000;
 
-      LENSES.forEach((_, i) => {
-        const [bx, by] = basePositions[i];
-        const signature = drift[i];
+      if (wrapperRef.current) {
+        const scale = 1 + 0.04 * Math.sin((t / breathPeriod) * Math.PI * 2);
+        wrapperRef.current.style.transform = `scale(${scale})`;
+      }
+
+      spotRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const duration = 12 + i * 4;
         const dx =
-          Math.sin(time * signature.ax * Math.PI * 2 + signature.px) *
-          signature.rx *
-          0.6;
+          offsets[i].x * 0.1 * Math.sin((t / duration) * Math.PI * 2);
         const dy =
-          Math.cos(time * signature.ay * Math.PI * 2 + signature.py) *
-          signature.ry *
-          0.6;
-        positions[i].set(bx + dx, by + dy);
+          offsets[i].y * 0.1 * Math.cos((t / duration) * Math.PI * 2);
+        el.style.transform = `translate(${dx}%, ${dy}%)`;
       });
 
-      uniforms.uBreath.value =
-        shouldPause || 5.5 <= 0
-          ? 1
-          : 1 + 0.04 * Math.sin((time / 5.5) * Math.PI * 2);
-
-      renderer.render(scene, camera);
-      if (!shouldPause) raf = requestAnimationFrame(render);
+      raf = requestAnimationFrame(animate);
     };
 
-    raf = requestAnimationFrame(render);
-
-    return () => {
-      if (raf) cancelAnimationFrame(raf);
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
-      renderer.forceContextLoss();
-    };
-  }, [paused, reducedMotion, seed, shouldPause, size, weights]);
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [shouldPause, seed]);
 
   return (
     <div
       aria-hidden={ariaLabel ? undefined : true}
       aria-label={ariaLabel}
       className={[styles.root, className].filter(Boolean).join(" ")}
-      ref={rootRef}
+      ref={wrapperRef}
       role={ariaLabel ? "img" : undefined}
       style={{ width: size, height: size, ...style }}
     >
-      <canvas
-        className={styles.canvas}
-        height={size}
-        ref={canvasRef}
-        width={size}
+      {/* Base glow — uses dominant lens color so the center reflects actual data */}
+      <div
+        className={styles.baseGlow}
+        style={{
+          background: `radial-gradient(circle at center, var(${LENS_TOKEN[dominantLens]}) 0%, transparent 80%)`,
+          filter: `blur(${blurBase}px)`,
+        }}
       />
+
+      {/* Six color spots — sorted ascending by weight so dominant lens paints last (on top) */}
+      {LENSES.map((lens, i) => ({ lens, i, w: norm[lens] }))
+        .sort((a, b) => a.w - b.w)
+        .map(({ lens, i }) => {
+          const w = norm[lens];
+          // sqrt lifts small weights so minor lenses remain perceptible;
+          // range 35%–80% gives clear size differentiation across the full weight range
+          const stop = Math.round(35 + 45 * Math.sqrt(w));
+          return (
+            <div
+              key={lens}
+              className={styles.colorSpot}
+              ref={(el) => {
+                spotRefs.current[i] = el;
+              }}
+              style={{
+                background: `radial-gradient(circle at ${50 + offsets[i].x}% ${50 + offsets[i].y}%, var(${LENS_TOKEN[lens]}) 0%, transparent ${stop}%)`,
+                filter: `blur(${blurSpot}px)`,
+              }}
+            />
+          );
+        })}
     </div>
   );
 }
