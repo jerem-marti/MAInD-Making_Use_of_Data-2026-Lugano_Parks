@@ -231,7 +231,7 @@
           "exampleExcerpt": "views of the lake and mountains. A perfect place to unwind, take photos, and breathe deeply. Highly recommended when..."
         },
         {
-          "term": "caf√©",
+          "term": "café",
           "category": "infrastructure_amenities",
           "frequency": 9,
           "exampleExcerpt": "a peaceful time in nature. Pro tip: You can get really good gelato at many places around park, so grab one and enjoy a..."
@@ -4030,52 +4030,52 @@
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "peaceful",
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "enjoy",
           "weight": 3
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "clean",
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "children",
           "weight": 3
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "playground",
           "weight": 3
         },
         {
           "source": "beautiful",
-          "target": "caf√©",
+          "target": "café",
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "lovely",
           "weight": 2
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "relax",
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "picnic",
           "weight": 1
         },
         {
-          "source": "caf√©",
+          "source": "café",
           "target": "wonderful",
           "weight": 1
         },
@@ -10456,7 +10456,7 @@
           "exampleExcerpt": "s fantastic... it's truly relaxing to be there, walking and admiring the colors of the lake and the surroundings......"
         },
         {
-          "term": "caf√©",
+          "term": "café",
           "category": "infrastructure_amenities",
           "frequency": 1,
           "exampleExcerpt": "never get tired of the view of San Salvatore or the little ice cream stands."

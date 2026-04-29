@@ -44,7 +44,7 @@ export type ForceParams = {
 };
 
 export const DEFAULT_FORCE_PARAMS: ForceParams = {
-  clusterStrength: 0.12,
+  clusterStrength: 0.15,
   chargeStrength: 30,
   edgeStrength: 0.05,
   edgeDistance: 60,

@@ -43,6 +43,24 @@ function isMissing(v: unknown): boolean {
   return false;
 }
 
+/**
+ * The source xlsx contains UTF-8 round-trip mangles where Excel stored
+ * already-encoded UTF-8 bytes as Latin-1. The pattern "√©" is the
+ * mangled form of "é". Fixing here so downstream code sees the correct
+ * glyph regardless of where the term appears (node label, edge endpoint,
+ * tooltip excerpt).
+ */
+function fixMojibake(s: string): string {
+  return s
+    .replace(/√©/g, "é")
+    .replace(/√†/g, "à")
+    .replace(/√®/g, "è")
+    .replace(/√¨/g, "ì")
+    .replace(/√≤/g, "ò")
+    .replace(/√π/g, "ù")
+    .replace(/√ß/g, "ç");
+}
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -89,10 +107,15 @@ let nanCoocCount = 0;
 // xlsx is unreliable (Parco Tassino was the result of merging two parks
 // and its frequency values weren't recomputed), so we count rows instead.
 // Row count matches the `frequency` column for the four clean parks.
+let mojibakeFixCount = 0;
+
 for (const row of rows) {
   const parkName = row.park_name;
-  const term = row.term;
-  if (!parkName || !term) continue;
+  const rawTerm = row.term;
+  if (!parkName || !rawTerm) continue;
+
+  const term = fixMojibake(rawTerm);
+  if (term !== rawTerm) mojibakeFixCount++;
 
   if (!isCategory(row.category)) {
     unknownCategoryCount++;
@@ -114,19 +137,22 @@ for (const row of rows) {
       term,
       category: cat,
       frequency: 1,
-      exampleExcerpt: (row.context_excerpt ?? "").toString(),
+      exampleExcerpt: fixMojibake((row.context_excerpt ?? "").toString()),
     });
   }
 
   // Edges from co_occurring_term_* on this row.
   for (const slot of COOC_SLOTS) {
-    const partner = row[`co_occurring_term_${slot}`];
-    if (isMissing(partner)) {
-      if (typeof partner === "string" && partner.trim().toLowerCase() === "nan")
+    const rawPartner = row[`co_occurring_term_${slot}`];
+    if (isMissing(rawPartner)) {
+      if (typeof rawPartner === "string" && rawPartner.trim().toLowerCase() === "nan")
         nanCoocCount++;
       continue;
     }
-    if (typeof partner !== "string" || partner === term) continue;
+    if (typeof rawPartner !== "string") continue;
+    const partner = fixMojibake(rawPartner);
+    if (partner !== rawPartner) mojibakeFixCount++;
+    if (partner === term) continue;
 
     const a = term < partner ? term : partner;
     const b = term < partner ? partner : term;
@@ -219,6 +245,9 @@ console.log(
 );
 console.log(
   `  edges dropped because an endpoint wasn't in the park's node list: ${droppedDanglingEdges}`,
+);
+console.log(
+  `  UTF-8 mojibake substrings replaced (e.g. "√©" → "é"): ${mojibakeFixCount}`,
 );
 
 console.log("");
