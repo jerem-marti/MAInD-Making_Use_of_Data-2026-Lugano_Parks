@@ -1,7 +1,6 @@
 import { ScrollSection } from "./components/shared/ScrollSection";
 import { Beat01Opening } from "./components/Beat01_Opening";
 import { Beat02Method } from "./components/Beat02_Method";
-import { Beat03Volume } from "./components/Beat03_Volume";
 import { Beat04Lenses } from "./components/Beat04_Lenses";
 import { Beat05WorkedExample } from "./components/Beat05_WorkedExample";
 import { Beat06Map } from "./components/Beat06_Map";
@@ -20,9 +19,6 @@ export default function App() {
       </ScrollSection>
       <ScrollSection vh={1.5} id="beat-02" label="Beat 02 — Method">
         <Beat02Method />
-      </ScrollSection>
-      <ScrollSection vh={1.5} id="beat-03" label="Beat 03 — Volume">
-        <Beat03Volume />
       </ScrollSection>
       <ScrollSection vh={5} id="beat-04" label="Beat 04 — Lenses">
         <Beat04Lenses />
