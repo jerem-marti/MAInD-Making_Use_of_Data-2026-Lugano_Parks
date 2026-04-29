@@ -138,10 +138,17 @@ const LENS_LABEL: Record<Lens, string> = {
   tension: "tension",
 };
 
-function dominantLens(weights: BlobV2Weights): Lens {
-  return LENSES.reduce((best, lens) =>
-    (weights[lens] ?? 0) > (weights[best] ?? 0) ? lens : best,
-  );
+function topLenses(weights: BlobV2Weights, count = 2) {
+  return LENSES.map((lens) => ({
+    lens,
+    value: weights[lens] ?? 0,
+  }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, count);
+}
+
+function formatLensShare(value: number): string {
+  return `${Math.round(value * 100)}%`;
 }
 
 function ParkMarkerView({
@@ -157,11 +164,14 @@ function ParkMarkerView({
 }) {
   const markerProgress = bloomProgress(progress, marker.order, reducedMotion);
   const wordCount = marker.totalWords.toLocaleString("en-US");
-  const dominant = dominantLens(marker.weights);
+  const strongestLenses = topLenses(marker.weights);
+  const strongestLensSummary = strongestLenses
+    .map(({ lens, value }) => `${LENS_LABEL[lens]} ${formatLensShare(value)}`)
+    .join(", ");
 
   return (
     <button
-      aria-label={`${marker.name}, ${wordCount} reviewed words`}
+      aria-label={`${marker.name}, ${wordCount} reviewed words, strongest lenses: ${strongestLensSummary}`}
       className={styles.markerButton}
       onClick={() => {
         console.log("Park clicked:", marker.name);
@@ -186,14 +196,23 @@ function ParkMarkerView({
           <span className={styles.tooltipCount}>{wordCount}</span>
           <span className={styles.tooltipCountLabel}>reviewed words</span>
         </span>
-        <span className={styles.tooltipLens}>
-          <span
-            className={styles.tooltipSwatch}
-            style={{ background: `var(${LENS_TOKEN[dominant]})` }}
-            aria-hidden="true"
-          />
-          <span className={styles.tooltipLensPrefix}>dominant ·</span>
-          <span>{LENS_LABEL[dominant]}</span>
+        <span className={styles.tooltipLensGroup}>
+          <span className={styles.tooltipLensHeading}>strongest lenses</span>
+          {strongestLenses.map(({ lens, value }) => (
+            <span className={styles.tooltipLensRow} key={lens}>
+              <span className={styles.tooltipLensName}>
+                <span
+                  className={styles.tooltipSwatch}
+                  style={{ background: `var(${LENS_TOKEN[lens]})` }}
+                  aria-hidden="true"
+                />
+                <span>{LENS_LABEL[lens]}</span>
+              </span>
+              <span className={styles.tooltipLensValue}>
+                {formatLensShare(value)}
+              </span>
+            </span>
+          ))}
         </span>
       </span>
     </button>
