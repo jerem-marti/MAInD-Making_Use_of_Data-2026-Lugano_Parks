@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Blob V2 — three.js shader prototype</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Blob V2 · GLSL prototype</div>
+  <label class="bg-pick">
+    Background
+    <input type="color" id="bg-color" value="#E8EFFA" />
+  </label>
+  <label class="park-pick">
+    Park preset
+    <select id="park-preset"></select>
+  </label>
+</header>
+
+<main>
+  <section class="hero">
+    <div id="hero-stage" class="stage"></div>
+    <div class="hero-meta" id="hero-meta"></div>
+  </section>
+
+  <section class="strip-wrap">
+    <div class="strip-label">120px (map-marker size)</div>
+    <section class="strip" id="strip-120"></section>
+  </section>
+
+  <section class="strip-wrap">
+    <div class="strip-label">200px (View C size)</div>
+    <section class="strip" id="strip-200"></section>
+  </section>
+</main>
+
+<aside class="panel" id="panel">
+  <h2>Parameters</h2>
+
+  <details open>
+    <summary>Category weights</summary>
+    <div id="weight-controls"></div>
+    <button type="button" id="normalise-btn">Normalise to 1</button>
+  </details>
+
+  <details open>
+    <summary>Palette</summary>
+    <div id="colour-controls"></div>
+    <div class="swatch-strip" id="swatch-strip"></div>
+  </details>
+
+  <details open>
+    <summary>Form</summary>
+    <label>Hero size <span class="val" id="size-val"></span>
+      <input type="range" id="size" min="120" max="600" step="2" value="400" />
+    </label>
+    <label>Edge softness <span class="val" id="soft-val"></span>
+      <input type="range" id="softness" min="0" max="100" step="1" value="40" />
+    </label>
+    <label>Internal blending <span class="val" id="blend-val"></span>
+      <input type="range" id="blend" min="0" max="100" step="1" value="55" />
+    </label>
+    <label>Internal flow <span class="val" id="flow-val"></span>
+      <input type="range" id="flow" min="0" max="100" step="1" value="65" />
+    </label>
+    <label>Silhouette wobble <span class="val" id="wob-val"></span>
+      <input type="range" id="wobble" min="0" max="100" step="1" value="30" />
+    </label>
+    <label>Inner highlight <span class="val" id="hl-val"></span>
+      <input type="range" id="highlight" min="0" max="100" step="1" value="70" />
+    </label>
+    <label>Saturation <span class="val" id="sat-val"></span>
+      <input type="range" id="saturation" min="50" max="200" step="1" value="100" />
+    </label>
+  </details>
+
+  <details open>
+    <summary>Breathing</summary>
+    <label>Rate (s/cycle) <span class="val" id="rate-val"></span>
+      <input type="range" id="rate" min="0" max="10" step="0.1" value="6" />
+    </label>
+    <label>Amplitude (%) <span class="val" id="amp-val"></span>
+      <input type="range" id="amplitude" min="0" max="15" step="0.1" value="0" />
+    </label>
+  </details>
+
+  <details>
+    <summary>Diagnostics</summary>
+    <div id="weights-readout" class="readout"></div>
+  </details>
+</aside>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

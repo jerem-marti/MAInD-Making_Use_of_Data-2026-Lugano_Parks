@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "blob-prototype",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["serve.py"],
+      "port": 8000
+    },
+    {
+      "name": "blob-v2",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["../blob_V2/serve_cwd.py"],
+      "port": 8001
+    }
+  ]
+}

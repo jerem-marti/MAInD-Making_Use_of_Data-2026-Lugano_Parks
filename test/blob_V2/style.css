@@ -1,0 +1,251 @@
+:root {
+  --bg: #E8EFFA;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --line: #e1e5ec;
+  --panel-w: 320px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color .25s ease;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 1fr var(--panel-w);
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(6px);
+  position: sticky; top: 0; z-index: 5;
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.topbar label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.topbar input[type="color"] {
+  width: 32px; height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+}
+
+.topbar select {
+  padding: .35rem .5rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: white;
+  font-size: .85rem;
+}
+
+main {
+  padding: 1.5rem 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.25rem;
+  min-width: 0;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-meta {
+  font-size: .85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.hero-meta strong { color: var(--text); }
+
+.strip-wrap { width: 100%; }
+
+.strip-label {
+  font-size: .75rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: .5rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.strip {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.strip .item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+}
+
+.strip .item .label {
+  font-size: .8rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.strip .item .label strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Parameter panel ───────────────────────────────────────── */
+.panel {
+  grid-row: 2;
+  grid-column: 2;
+  border-left: 1px solid var(--line);
+  background: rgba(255,255,255,.7);
+  padding: 1rem 1rem 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 56px);
+  position: sticky;
+  top: 56px;
+  font-size: .85rem;
+}
+
+.panel h2 {
+  font-size: .95rem;
+  margin: 0 0 .75rem;
+  font-weight: 600;
+}
+
+.panel details {
+  border-top: 1px solid var(--line);
+  padding: .55rem 0;
+}
+.panel details:first-of-type { border-top: none; }
+
+.panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: .35rem;
+  user-select: none;
+}
+
+.panel label {
+  display: block;
+  margin: .5rem 0;
+  color: var(--muted);
+}
+
+.panel input[type="range"] {
+  width: 100%;
+  display: block;
+  margin-top: .25rem;
+}
+
+.panel input[type="number"] {
+  width: 64px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: .15rem .3rem;
+  font-size: .8rem;
+}
+
+.panel input[type="color"] {
+  width: 28px;
+  height: 22px;
+  vertical-align: middle;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0;
+}
+
+.panel button {
+  margin-top: .35rem;
+  font-size: .75rem;
+  padding: .25rem .5rem;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.val {
+  float: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: .25rem 0;
+}
+.row .row-label { flex: 1; font-size: .8rem; color: var(--muted); }
+
+.swatch-strip {
+  display: flex;
+  margin-top: .5rem;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.swatch-strip > div {
+  flex: 1;
+  height: 22px;
+}
+
+.readout {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .72rem;
+  white-space: pre;
+  color: var(--muted);
+}
+
+/* ── Blob component ────────────────────────────────────────── */
+.blob-root {
+  display: inline-block;
+  line-height: 0;
+  /* Faint neutral shadow behind the blob — no coloured halo. */
+  filter: drop-shadow(0 4px 22px rgba(80, 90, 130, 0.18));
+}
+
+.blob-canvas {
+  display: block;
+}

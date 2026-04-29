@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/**)",
+      "Read(//d/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/**)",
+      "Bash(python -c ' *)",
+      "Bash(pip install *)",
+      "PowerShell(python -m pip install openpyxl --quiet 2>&1)",
+      "Bash(python _inspect.py)",
+      "Bash(python prep_data.py)",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "Bash(cp \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob/prep_data.py\" \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob_V2/prep_data.py\")",
+      "Bash(cp \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob/serve.py\" \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob_V2/serve.py\")",
+      "Bash(cp \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob/data/parks.json\" \"D:/OneDrive/Etudes/SUPSI/MAIND-S2/make_use_of_data/CODE/test/blob_V2/data/parks.json\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 26972)",
+      "Bash(ffmpeg -version)",
+      "Bash(python _extract_frames.py)"
+    ]
+  }
+}

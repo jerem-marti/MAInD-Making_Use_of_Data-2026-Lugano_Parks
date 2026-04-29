@@ -1,0 +1,90 @@
+{
+  "categories": [
+    "experiential_emotional",
+    "sensory_environmental",
+    "action",
+    "relational_context",
+    "infrastructure_amenities",
+    "tension_complaint"
+  ],
+  "labels": {
+    "experiential_emotional": "Emotional",
+    "sensory_environmental": "Sensory",
+    "action": "Action",
+    "relational_context": "Relational",
+    "infrastructure_amenities": "Infrastructure",
+    "tension_complaint": "Tension"
+  },
+  "parks": [
+    {
+      "name": "Parco Ciani",
+      "short_name": "Ciani",
+      "weights": {
+        "experiential_emotional": 0.46111111111111114,
+        "sensory_environmental": 0.17962962962962964,
+        "action": 0.204320987654321,
+        "relational_context": 0.047530864197530866,
+        "infrastructure_amenities": 0.09691358024691359,
+        "tension_complaint": 0.010493827160493827
+      },
+      "review_count_proxy": 1620,
+      "unique_terms": 98
+    },
+    {
+      "name": "Parco Lambertenghi",
+      "short_name": "Lambertenghi",
+      "weights": {
+        "experiential_emotional": 0.27692307692307694,
+        "sensory_environmental": 0.1076923076923077,
+        "action": 0.1076923076923077,
+        "relational_context": 0.27692307692307694,
+        "infrastructure_amenities": 0.2153846153846154,
+        "tension_complaint": 0.015384615384615385
+      },
+      "review_count_proxy": 65,
+      "unique_terms": 26
+    },
+    {
+      "name": "Parco Panoramico Paradiso",
+      "short_name": "Panoramico Paradiso",
+      "weights": {
+        "experiential_emotional": 0.4281842818428184,
+        "sensory_environmental": 0.22493224932249323,
+        "action": 0.11382113821138211,
+        "relational_context": 0.08672086720867209,
+        "infrastructure_amenities": 0.13279132791327913,
+        "tension_complaint": 0.013550135501355014
+      },
+      "review_count_proxy": 369,
+      "unique_terms": 74
+    },
+    {
+      "name": "Parco San Michele",
+      "short_name": "San Michele",
+      "weights": {
+        "experiential_emotional": 0.48727272727272725,
+        "sensory_environmental": 0.21454545454545454,
+        "action": 0.13272727272727272,
+        "relational_context": 0.02181818181818182,
+        "infrastructure_amenities": 0.12545454545454546,
+        "tension_complaint": 0.01818181818181818
+      },
+      "review_count_proxy": 550,
+      "unique_terms": 86
+    },
+    {
+      "name": "Parco Tassino",
+      "short_name": "Tassino",
+      "weights": {
+        "experiential_emotional": 0.4085872576177285,
+        "sensory_environmental": 0.20637119113573407,
+        "action": 0.15096952908587258,
+        "relational_context": 0.08725761772853186,
+        "infrastructure_amenities": 0.11634349030470914,
+        "tension_complaint": 0.030470914127423823
+      },
+      "review_count_proxy": 740,
+      "unique_terms": 102
+    }
+  ]
+}
