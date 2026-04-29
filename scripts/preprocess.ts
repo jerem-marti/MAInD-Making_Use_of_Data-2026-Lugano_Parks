@@ -12,8 +12,28 @@ import {
 } from "../src/data/types";
 
 const SRC = "data/parks_analysis_V2.xlsx";
-const OUT = "public/data/parks.json";
+const OUT_RICH = "public/data/parks.json"; // Phase 3 View B network shape
+const OUT_ACT1 = "src/data/parks.json"; // Act I scrolly shape (per Phase 2 setup spec)
+const OUT_POOL = "src/data/excerpts-pool.json"; // shared pool of short excerpts
 const SHEET = "parks_analysis_update";
+
+// Map full park name → short Act I id. The Phase 2 setup spec gave "ciani"
+// as the example; we follow the same convention (drop "Parco ", lowercase,
+// kebab-case, drop the descriptor "panoramico" since "paradiso" alone
+// disambiguates).
+const ACT1_IDS: Record<string, string> = {
+  "Parco Ciani": "ciani",
+  "Parco Tassino": "tassino",
+  "Parco San Michele": "san-michele",
+  "Parco Panoramico Paradiso": "paradiso",
+  "Parco Lambertenghi": "lambertenghi",
+};
+
+const TOP_TERMS_PER_PARK = 12;
+const EXAMPLE_EXCERPTS_PER_PARK = 8;
+const POOL_TARGET_SIZE = 30;
+const EXCERPT_MIN_WORDS = 4;
+const EXCERPT_MAX_WORDS = 16;
 
 type Row = {
   park_name: string;
@@ -97,7 +117,22 @@ type ParkAcc = {
   name: string;
   nodes: Map<string, Node>;
   edges: Map<string, Edge>; // key: `${a}␟${b}` with a < b
+  /** Insertion-ordered, case-insensitive deduped, length-filtered. */
+  excerpts: string[];
+  excerptKeys: Set<string>;
 };
+
+function wordCount(s: string): number {
+  return s.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function normaliseExcerpt(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function excerptKey(s: string): string {
+  return s.toLowerCase();
+}
 
 const parks = new Map<string, ParkAcc>();
 let unknownCategoryCount = 0;
@@ -125,8 +160,29 @@ for (const row of rows) {
 
   let acc = parks.get(parkName);
   if (!acc) {
-    acc = { name: parkName, nodes: new Map(), edges: new Map() };
+    acc = {
+      name: parkName,
+      nodes: new Map(),
+      edges: new Map(),
+      excerpts: [],
+      excerptKeys: new Set(),
+    };
     parks.set(parkName, acc);
+  }
+
+  // Collect short distinct excerpts per park (used for both
+  // exampleExcerpts and the cross-park pool).
+  const rawExcerpt = row.context_excerpt;
+  if (rawExcerpt && typeof rawExcerpt === "string") {
+    const e = normaliseExcerpt(fixMojibake(rawExcerpt));
+    const wc = wordCount(e);
+    if (wc >= EXCERPT_MIN_WORDS && wc <= EXCERPT_MAX_WORDS) {
+      const key = excerptKey(e);
+      if (!acc.excerptKeys.has(key)) {
+        acc.excerptKeys.add(key);
+        acc.excerpts.push(e);
+      }
+    }
   }
 
   const existingNode = acc.nodes.get(term);
@@ -212,12 +268,97 @@ result.parks.sort(
 );
 
 // ─────────────────────────────────────────────────────────────────────
-// Write output
+// Write rich output (Phase 3 View B network)
 // ─────────────────────────────────────────────────────────────────────
 
-const outDir = dirname(OUT);
-if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-writeFileSync(OUT, JSON.stringify(result, null, 2));
+const richOutDir = dirname(OUT_RICH);
+if (!existsSync(richOutDir)) mkdirSync(richOutDir, { recursive: true });
+writeFileSync(OUT_RICH, JSON.stringify(result, null, 2));
+
+// ─────────────────────────────────────────────────────────────────────
+// Write Act I park summary + cross-park excerpts pool
+// ─────────────────────────────────────────────────────────────────────
+
+type Act1TopTerm = { term: string; category: Category; frequency: number };
+type Act1Park = {
+  id: string;
+  name: string;
+  totalWords: number;
+  distinctWords: number;
+  categoryWeights: Record<Category, number>;
+  topTerms: Act1TopTerm[];
+  exampleExcerpts: string[];
+};
+
+const act1: { parks: Act1Park[] } = { parks: [] };
+let unmappedParkIds = 0;
+
+for (const p of result.parks) {
+  const acc = parks.get(p.name);
+  const excerpts = acc?.excerpts ?? [];
+  const id = ACT1_IDS[p.name];
+  if (!id) {
+    unmappedParkIds++;
+    console.warn(
+      `  WARNING: park "${p.name}" not in ACT1_IDS map — using slug fallback`,
+    );
+  }
+
+  const total = p.totalMentions || 1;
+  const categoryWeights = CATEGORIES.reduce(
+    (acc2, c) => {
+      acc2[c] = +(p.categoryCounts[c] / total).toFixed(4);
+      return acc2;
+    },
+    {} as Record<Category, number>,
+  );
+
+  const topTerms: Act1TopTerm[] = p.nodes
+    .slice(0, TOP_TERMS_PER_PARK)
+    .map((n) => ({
+      term: n.term,
+      category: n.category,
+      frequency: n.frequency,
+    }));
+
+  act1.parks.push({
+    id: id ?? p.id,
+    name: p.name,
+    totalWords: p.totalMentions,
+    distinctWords: p.distinctTermsCount,
+    categoryWeights,
+    topTerms,
+    exampleExcerpts: excerpts.slice(0, EXAMPLE_EXCERPTS_PER_PARK),
+  });
+}
+
+const act1OutDir = dirname(OUT_ACT1);
+if (!existsSync(act1OutDir)) mkdirSync(act1OutDir, { recursive: true });
+writeFileSync(OUT_ACT1, JSON.stringify(act1, null, 2));
+
+// Cross-park pool: round-robin from each park's deduped excerpts so the
+// pool isn't dominated by Ciani. Then take the first POOL_TARGET_SIZE.
+const poolKeys = new Set<string>();
+const pool: string[] = [];
+const queues = act1.parks.map((p) => {
+  const acc = parks.get(p.name);
+  return acc ? [...acc.excerpts] : [];
+});
+let exhausted = false;
+while (!exhausted && pool.length < POOL_TARGET_SIZE * 3) {
+  exhausted = true;
+  for (const q of queues) {
+    const next = q.shift();
+    if (!next) continue;
+    exhausted = false;
+    const key = excerptKey(next);
+    if (poolKeys.has(key)) continue;
+    poolKeys.add(key);
+    pool.push(next);
+    if (pool.length >= POOL_TARGET_SIZE * 2) break;
+  }
+}
+writeFileSync(OUT_POOL, JSON.stringify(pool, null, 2));
 
 // ─────────────────────────────────────────────────────────────────────
 // Report
@@ -249,6 +390,19 @@ console.log(
 console.log(
   `  UTF-8 mojibake substrings replaced (e.g. "√©" → "é"): ${mojibakeFixCount}`,
 );
+console.log(
+  `  parks not mapped to an Act I id (slug fallback used): ${unmappedParkIds}`,
+);
 
 console.log("");
-console.log(`Wrote ${OUT}`);
+console.log(`Wrote ${OUT_RICH}    (rich shape, Phase 3 View B)`);
+console.log(`Wrote ${OUT_ACT1}        (Act I summary)`);
+console.log(`Wrote ${OUT_POOL}  (${pool.length} excerpts)`);
+
+for (const p of act1.parks) {
+  console.log(
+    `  ${p.name.padEnd(28)} id=${p.id.padEnd(14)} ` +
+      `top=${p.topTerms.length} ` +
+      `excerpts=${p.exampleExcerpts.length}`,
+  );
+}

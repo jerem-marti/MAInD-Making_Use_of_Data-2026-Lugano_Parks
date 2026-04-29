@@ -1,0 +1,14 @@
+.blob {
+  display: block;
+  overflow: visible;
+}
+
+@keyframes breathing {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+.breathing {
+  animation: breathing 4s var(--ease) infinite;
+  transform-origin: center;
+}

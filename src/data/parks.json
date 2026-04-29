@@ -1,0 +1,434 @@
+{
+  "parks": [
+    {
+      "id": "ciani",
+      "name": "Parco Ciani",
+      "totalWords": 1620,
+      "distinctWords": 98,
+      "categoryWeights": {
+        "experiential_emotional": 0.4611,
+        "sensory_environmental": 0.1796,
+        "action": 0.2043,
+        "relational_context": 0.0475,
+        "infrastructure_amenities": 0.0969,
+        "tension_complaint": 0.0105
+      },
+      "topTerms": [
+        {
+          "term": "beautiful",
+          "category": "experiential_emotional",
+          "frequency": 292
+        },
+        {
+          "term": "nice",
+          "category": "experiential_emotional",
+          "frequency": 75
+        },
+        {
+          "term": "walk",
+          "category": "action",
+          "frequency": 75
+        },
+        {
+          "term": "relax",
+          "category": "action",
+          "frequency": 72
+        },
+        {
+          "term": "great",
+          "category": "experiential_emotional",
+          "frequency": 66
+        },
+        {
+          "term": "trees",
+          "category": "infrastructure_amenities",
+          "frequency": 51
+        },
+        {
+          "term": "clean",
+          "category": "sensory_environmental",
+          "frequency": 44
+        },
+        {
+          "term": "wonderful",
+          "category": "experiential_emotional",
+          "frequency": 44
+        },
+        {
+          "term": "visit",
+          "category": "action",
+          "frequency": 40
+        },
+        {
+          "term": "flowery",
+          "category": "sensory_environmental",
+          "frequency": 39
+        },
+        {
+          "term": "stroll",
+          "category": "action",
+          "frequency": 37
+        },
+        {
+          "term": "well-maintained",
+          "category": "sensory_environmental",
+          "frequency": 36
+        }
+      ],
+      "exampleExcerpts": [
+        "One of the most beautiful parks I've ever seen!",
+        "Beautiful park, with a lakeside walk and green areas full of tulips",
+        "Beautiful park, well-kept and full of tulips",
+        "A must-see in Lugano. Beautiful flower displays and photo opportunities. Quiet benches for",
+        "Beautiful park in the city center of Lugano!!",
+        "A very beautiful and clean park",
+        "A truly beautiful place, well worth visiting again and again. The park is qui",
+        "A very beautiful domain, right on the lake's edge. I highly recommend a stro"
+      ]
+    },
+    {
+      "id": "tassino",
+      "name": "Parco Tassino",
+      "totalWords": 856,
+      "distinctWords": 102,
+      "categoryWeights": {
+        "experiential_emotional": 0.3879,
+        "sensory_environmental": 0.1963,
+        "action": 0.1449,
+        "relational_context": 0.1028,
+        "infrastructure_amenities": 0.1367,
+        "tension_complaint": 0.0315
+      },
+      "topTerms": [
+        {
+          "term": "beautiful",
+          "category": "experiential_emotional",
+          "frequency": 109
+        },
+        {
+          "term": "nice",
+          "category": "experiential_emotional",
+          "frequency": 34
+        },
+        {
+          "term": "dogs",
+          "category": "relational_context",
+          "frequency": 32
+        },
+        {
+          "term": "great",
+          "category": "experiential_emotional",
+          "frequency": 31
+        },
+        {
+          "term": "children",
+          "category": "relational_context",
+          "frequency": 26
+        },
+        {
+          "term": "picnic",
+          "category": "action",
+          "frequency": 25
+        },
+        {
+          "term": "beautiful view",
+          "category": "sensory_environmental",
+          "frequency": 24
+        },
+        {
+          "term": "quiet",
+          "category": "sensory_environmental",
+          "frequency": 23
+        },
+        {
+          "term": "relax",
+          "category": "action",
+          "frequency": 23
+        },
+        {
+          "term": "walk",
+          "category": "action",
+          "frequency": 23
+        },
+        {
+          "term": "wonderful",
+          "category": "experiential_emotional",
+          "frequency": 17
+        },
+        {
+          "term": "bench",
+          "category": "infrastructure_amenities",
+          "frequency": 16
+        }
+      ],
+      "exampleExcerpts": [
+        "A very nice, well-kept park with many beautiful flowering plants, against the backdrop of stunning panorami",
+        "A beautiful park with a viewpoint over Lake Lugano and the mountains. I",
+        "A really beautiful place, and great for walking, with amazing views of Lake Lu",
+        "Beautiful park for picnics and relaxation",
+        "A nice hidden beautiful playground but unfortunately no clear places for parking. U",
+        "Beautiful park, shame about those who litter and this happens often.",
+        "Very beautiful view certainly, but you can hear the trains from the statio",
+        "Always beautiful. I often have lunch there (packed lunch)."
+      ]
+    },
+    {
+      "id": "san-michele",
+      "name": "Parco San Michele",
+      "totalWords": 550,
+      "distinctWords": 86,
+      "categoryWeights": {
+        "experiential_emotional": 0.4873,
+        "sensory_environmental": 0.2145,
+        "action": 0.1327,
+        "relational_context": 0.0218,
+        "infrastructure_amenities": 0.1255,
+        "tension_complaint": 0.0182
+      },
+      "topTerms": [
+        {
+          "term": "beautiful",
+          "category": "experiential_emotional",
+          "frequency": 83
+        },
+        {
+          "term": "beautiful view",
+          "category": "sensory_environmental",
+          "frequency": 31
+        },
+        {
+          "term": "great",
+          "category": "experiential_emotional",
+          "frequency": 19
+        },
+        {
+          "term": "nice",
+          "category": "experiential_emotional",
+          "frequency": 19
+        },
+        {
+          "term": "quiet",
+          "category": "sensory_environmental",
+          "frequency": 18
+        },
+        {
+          "term": "relax",
+          "category": "action",
+          "frequency": 18
+        },
+        {
+          "term": "wonderful",
+          "category": "experiential_emotional",
+          "frequency": 18
+        },
+        {
+          "term": "bench",
+          "category": "infrastructure_amenities",
+          "frequency": 17
+        },
+        {
+          "term": "view of Lugano",
+          "category": "sensory_environmental",
+          "frequency": 17
+        },
+        {
+          "term": "stunning",
+          "category": "experiential_emotional",
+          "frequency": 15
+        },
+        {
+          "term": "picnic",
+          "category": "action",
+          "frequency": 14
+        },
+        {
+          "term": "parking",
+          "category": "infrastructure_amenities",
+          "frequency": 12
+        }
+      ],
+      "exampleExcerpts": [
+        "Park with beautiful views, 5 minutes from Lugano",
+        "Very beautiful, great view üòç ‚Ä¶",
+        "Probably the most beautiful and underrated panoramic viewpoint in all of Lugano. Locate",
+        "t visited in the late morning or at sunset for particularly beautiful light.",
+        "One of the most beautiful lakes and places I've ever seen. If you're going to Milan,",
+        "ws, local parking, and a focus on promoting biodiversity. A beautiful park.",
+        "Beautiful park, with a beautiful view. I gave it a 4/5 because fo",
+        "One of the most beautiful places in Lugano...great view...in the middle of nature...g"
+      ]
+    },
+    {
+      "id": "paradiso",
+      "name": "Parco Panoramico Paradiso",
+      "totalWords": 369,
+      "distinctWords": 74,
+      "categoryWeights": {
+        "experiential_emotional": 0.4282,
+        "sensory_environmental": 0.2249,
+        "action": 0.1138,
+        "relational_context": 0.0867,
+        "infrastructure_amenities": 0.1328,
+        "tension_complaint": 0.0136
+      },
+      "topTerms": [
+        {
+          "term": "beautiful",
+          "category": "experiential_emotional",
+          "frequency": 57
+        },
+        {
+          "term": "beautiful view",
+          "category": "sensory_environmental",
+          "frequency": 18
+        },
+        {
+          "term": "children",
+          "category": "relational_context",
+          "frequency": 18
+        },
+        {
+          "term": "nice",
+          "category": "experiential_emotional",
+          "frequency": 18
+        },
+        {
+          "term": "playground",
+          "category": "infrastructure_amenities",
+          "frequency": 14
+        },
+        {
+          "term": "quiet",
+          "category": "sensory_environmental",
+          "frequency": 13
+        },
+        {
+          "term": "wonderful",
+          "category": "experiential_emotional",
+          "frequency": 13
+        },
+        {
+          "term": "enjoy",
+          "category": "action",
+          "frequency": 12
+        },
+        {
+          "term": "parking",
+          "category": "infrastructure_amenities",
+          "frequency": 10
+        },
+        {
+          "term": "bench",
+          "category": "infrastructure_amenities",
+          "frequency": 9
+        },
+        {
+          "term": "great",
+          "category": "experiential_emotional",
+          "frequency": 8
+        },
+        {
+          "term": "view of the lake",
+          "category": "sensory_environmental",
+          "frequency": 8
+        }
+      ],
+      "exampleExcerpts": [
+        "A beautiful park. Located high on the mountain with lovely views of the",
+        "A very beautiful view of Lake Lugano next to a small playground with benches",
+        "Beauty!! The view of the lake is beautiful!",
+        "Lugano's most beautiful park",
+        "Beautiful view of the lake both during the day and in the evening at",
+        "but it's worth the effort because the pictures come out so beautiful!",
+        "Beautiful park üëçüèª ‚Ä¶",
+        "Beautiful park with a stunning view of Lake Ceresio"
+      ]
+    },
+    {
+      "id": "lambertenghi",
+      "name": "Parco Lambertenghi",
+      "totalWords": 65,
+      "distinctWords": 26,
+      "categoryWeights": {
+        "experiential_emotional": 0.2769,
+        "sensory_environmental": 0.1077,
+        "action": 0.1077,
+        "relational_context": 0.2769,
+        "infrastructure_amenities": 0.2154,
+        "tension_complaint": 0.0154
+      },
+      "topTerms": [
+        {
+          "term": "children",
+          "category": "relational_context",
+          "frequency": 11
+        },
+        {
+          "term": "beautiful",
+          "category": "experiential_emotional",
+          "frequency": 6
+        },
+        {
+          "term": "sports facilities",
+          "category": "infrastructure_amenities",
+          "frequency": 6
+        },
+        {
+          "term": "nice",
+          "category": "experiential_emotional",
+          "frequency": 5
+        },
+        {
+          "term": "kids",
+          "category": "relational_context",
+          "frequency": 4
+        },
+        {
+          "term": "play",
+          "category": "action",
+          "frequency": 4
+        },
+        {
+          "term": "wonderful",
+          "category": "experiential_emotional",
+          "frequency": 4
+        },
+        {
+          "term": "playground",
+          "category": "infrastructure_amenities",
+          "frequency": 3
+        },
+        {
+          "term": "quiet",
+          "category": "sensory_environmental",
+          "frequency": 3
+        },
+        {
+          "term": "clean",
+          "category": "sensory_environmental",
+          "frequency": 2
+        },
+        {
+          "term": "parking",
+          "category": "infrastructure_amenities",
+          "frequency": 2
+        },
+        {
+          "term": "bench",
+          "category": "infrastructure_amenities",
+          "frequency": 1
+        }
+      ],
+      "exampleExcerpts": [
+        "Beautiful park in the center",
+        "Beautiful and very popular",
+        "A beautiful area as pictured",
+        "Nice, spacious, on the promenade with a view of the lake",
+        "Nice and quiet is the place where my company operates. There is",
+        "Remade a few years ago, nice for children and mothers",
+        "It's a wonderful school where every child can have fun, they teach very well",
+        "Excellent school with wonderful sports facilities for students and external clubs."
+      ]
+    }
+  ]
+}
