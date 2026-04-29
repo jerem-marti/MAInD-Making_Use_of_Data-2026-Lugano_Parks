@@ -242,8 +242,6 @@ main {
 .blob-root {
   display: inline-block;
   line-height: 0;
-  /* Faint neutral shadow behind the blob — no coloured halo. */
-  filter: drop-shadow(0 4px 22px rgba(80, 90, 130, 0.18));
 }
 
 .blob-canvas {
