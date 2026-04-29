@@ -35,7 +35,20 @@ const legendRoot = document.getElementById("legend")!;
   const tooltip = mountTooltip(tooltipRoot);
   const legend = mountLegend(legendRoot);
 
-  let parkIndex = 0;
+  // Hash-based deep links for screenshot capture and bookmarking:
+  //   #parco-ciani           → open this park
+  //   #parco-tassino&hide-panel → open this park, hide the force-tuning panel
+  // Hash is parsed once at boot; the dropdown takes over after that.
+  const hashParts = window.location.hash.replace(/^#/, "").split("&");
+  const hashId = hashParts[0];
+  const hidePanel = hashParts.includes("hide-panel");
+  const initialIndex = Math.max(
+    0,
+    data.parks.findIndex((p) => p.id === hashId),
+  );
+  if (hidePanel) forcePanelRoot.style.display = "none";
+
+  let parkIndex = initialIndex >= 0 ? initialIndex : 0;
   let forceParams: ForceParams = { ...DEFAULT_FORCE_PARAMS };
   let allEdgesVisible = false;
 
