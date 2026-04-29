@@ -23,13 +23,14 @@ const state = {
   weights: weightsArray(data.parks[0].weights, cats),
   colours: cats.map((c) => PALETTE[c]),
   blend: 0.55,
+  opacity: 1.00,
   flow: 0.65,
   wobble: 0.30,
   edgeSoftness: 0.40,
-  highlight: 0.70,
+  background: "#E8EFFA",
   saturation: 1.00,
   rate: 6,
-  amplitude: 0,
+  amplitude: 4,
   selectedPark: data.parks[0].name,
 };
 
@@ -38,10 +39,11 @@ function sharedParams() {
   return {
     colours: state.colours,
     blend: state.blend,
+    opacity: state.opacity,
     flow: state.flow,
     wobble: state.wobble,
     edgeSoftness: state.edgeSoftness,
-    highlight: state.highlight,
+    background: state.background,
     saturation: state.saturation,
     rate: state.rate,
     amplitude: state.amplitude,
@@ -104,9 +106,18 @@ select.addEventListener("change", () => {
 
 // ── Background colour ──────────────────────────────────────────────────
 const bg = document.getElementById("bg-color");
+syncBackground();
 bg.addEventListener("input", () => {
-  document.body.style.backgroundColor = bg.value;
+  state.background = bg.value;
+  syncBackground();
+  refreshAllBlobs();
 });
+
+function syncBackground() {
+  document.documentElement.style.setProperty("--bg", state.background);
+  document.body.style.backgroundColor = state.background;
+  bg.value = state.background;
+}
 
 // ── Weight controls ────────────────────────────────────────────────────
 const weightControls = document.getElementById("weight-controls");
@@ -182,11 +193,11 @@ refreshSwatches();
 // ── Range sliders ──────────────────────────────────────────────────────
 const sliders = [
   ["size",       "size-val",  (v) => `${v}px`,              (v) => +v,         "size"],
+  ["opacity",    "opacity-val", (v) => `${v}%`,             (v) => +v / 100,   "opacity"],
   ["softness",   "soft-val",  (v) => `${v}%`,               (v) => +v / 100,   "edgeSoftness"],
   ["blend",      "blend-val", (v) => `${v}%`,               (v) => +v / 100,   "blend"],
   ["flow",       "flow-val",  (v) => `${v}%`,               (v) => +v / 100,   "flow"],
   ["wobble",     "wob-val",   (v) => `${v}%`,               (v) => +v / 100,   "wobble"],
-  ["highlight",  "hl-val",    (v) => `${v}%`,               (v) => +v / 100,   "highlight"],
   ["saturation", "sat-val",   (v) => `${v}%`,               (v) => +v / 100,   "saturation"],
   ["rate",       "rate-val",  (v) => `${(+v).toFixed(1)}s`,  (v) => +v,         "rate"],
   ["amplitude",  "amp-val",   (v) => `${(+v).toFixed(1)}%`,  (v) => +v,         "amplitude"],

@@ -17,20 +17,21 @@ import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 import { VERT, FRAG } from "./shaders.js";
 
 const DEFAULTS = {
-  size: 400,
+  size: 280,
   weights: [1, 0, 0, 0, 0, 0],
   // Vibrant Phase-1 starting palette.
   colours: ["#C4A8FF", "#40FFB8", "#52E8FF", "#FFE040", "#FFB47A", "#FF7060"],
   // Base anchor positions (blob-space, -1..1). Six angular slots.
   basePositions: defaultPositions(),
   blend: 0.55,         // 0..1   sigma scale (bleed strength)
+  opacity: 1.00,       // 0..1   whole-blob opacity
   edgeSoftness: 0.40,  // 0..1   outer alpha falloff width
-  highlight: 0.70,     // 0..1   off-centre interior highlight
   saturation: 1.00,    // 0..1+  saturation multiplier
-  flow: 0.65,          // 0..1   anchor drift amount (small jitter, not zone movement)
+  background: "#E8EFFA",
+  flow: 1.30,          // 0..1   anchor drift amount (2x increased)
   wobble: 0.30,        // 0..1   subtle silhouette deformation
-  rate: 6,             // s/cycle  breathing period (subtle scale pulse)
-  amplitude: 0,        // %        breathing scale oscillation (off by default)
+  rate: 6,             // s/cycle  breathing period
+  amplitude: 4,        // %        breathing scale oscillation
   paused: false,
 };
 
@@ -81,6 +82,7 @@ export function createBlob(opts = {}) {
   state.basePositions = (opts.positions ?? state.basePositions).map((p) => p.slice());
 
   const drift = makeDriftPhases();
+  const wobbleSeed = Math.random();
 
   // ── DOM scaffolding ─────────────────────────────────────────────────
   const root = document.createElement("div");
@@ -114,11 +116,13 @@ export function createBlob(opts = {}) {
     uWeights:      { value: uWeights },
     uTime:         { value: 0 },
     uBlend:        { value: state.blend },
+    uOpacity:      { value: state.opacity },
     uEdgeSoftness: { value: state.edgeSoftness },
     uBreath:       { value: 1.0 },
-    uHighlight:    { value: state.highlight },
     uSaturation:   { value: state.saturation },
     uWobble:       { value: state.wobble },
+    uWobbleSeed:   { value: wobbleSeed },
+    uBackground:   { value: hexToVec3(state.background) },
   };
 
   const material = new THREE.ShaderMaterial({
@@ -153,10 +157,11 @@ export function createBlob(opts = {}) {
     }
 
     uniforms.uBlend.value        = state.blend;
+    uniforms.uOpacity.value      = state.opacity;
     uniforms.uEdgeSoftness.value = state.edgeSoftness;
-    uniforms.uHighlight.value    = state.highlight;
     uniforms.uSaturation.value   = state.saturation;
     uniforms.uWobble.value       = state.wobble;
+    uniforms.uBackground.value.copy(hexToVec3(state.background));
   }
 
   // ── Render loop ────────────────────────────────────────────────────
@@ -178,7 +183,6 @@ export function createBlob(opts = {}) {
       uPositions[i].set(bx + dx, by + dy);
     }
 
-    // Subtle breathing scale.
     let breath = 1.0;
     if (state.amplitude > 0 && state.rate > 0) {
       breath = 1.0 + (state.amplitude / 100) * Math.sin((t / state.rate) * Math.PI * 2);
@@ -203,8 +207,8 @@ export function createBlob(opts = {}) {
       if (patch.basePositions) state.basePositions = patch.basePositions.map((p) => p.slice());
       if (patch.positions)     state.basePositions = patch.positions.map((p) => p.slice());
       for (const k of [
-        "size", "blend", "edgeSoftness", "highlight",
-        "saturation", "flow", "wobble", "rate", "amplitude", "paused",
+        "size", "blend", "opacity", "edgeSoftness", "saturation", "background",
+        "flow", "wobble", "rate", "amplitude", "paused",
       ]) if (k in patch) state[k] = patch[k];
       if ("size" in patch) applySize();
       applyParams();
