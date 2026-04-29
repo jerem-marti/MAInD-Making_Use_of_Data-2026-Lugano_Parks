@@ -18,10 +18,10 @@ export default function App() {
       <ScrollSection vh={1.6} id="beat-01" label="Beat 01 — Opening">
         <Beat01Opening />
       </ScrollSection>
-      <ScrollSection vh={2} id="beat-02" label="Beat 02 — Method">
+      <ScrollSection vh={1.5} id="beat-02" label="Beat 02 — Method">
         <Beat02Method />
       </ScrollSection>
-      <ScrollSection vh={2} id="beat-03" label="Beat 03 — Volume">
+      <ScrollSection vh={1.5} id="beat-03" label="Beat 03 — Volume">
         <Beat03Volume />
       </ScrollSection>
       <ScrollSection vh={2} id="beat-04" label="Beat 04 — Lenses">

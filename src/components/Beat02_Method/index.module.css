@@ -1,0 +1,35 @@
+.stage {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg, var(--color-bg));
+  padding: var(--space-7) var(--space-6);
+}
+
+.copy {
+  width: min(640px, 100%);
+}
+
+.copy p {
+  margin: 0;
+  color: var(--ink, var(--color-text-secondary));
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-size: var(--text-lg, 18px);
+  line-height: 1.6;
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.copy p + p {
+  margin-top: var(--space-4);
+}
+
+.copy em {
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy p {
+    transition: none;
+  }
+}
