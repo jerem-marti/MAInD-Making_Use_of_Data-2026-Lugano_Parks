@@ -38,31 +38,56 @@ export type LensSwatchProps = {
   lens: Lens;
   active?: boolean;
   count?: number;
+  countLabel?: string;
+  countOpacity?: number;
+  dotColor?: string;
   label?: string;
+  className?: string;
+  preserveLabelCase?: boolean;
   size?: number;
+  style?: CSSProperties;
 };
 
 export function LensSwatch({
   lens,
   active = false,
   count,
+  countLabel,
+  countOpacity,
+  dotColor,
   label,
+  className,
+  preserveLabelCase = false,
   size = 10,
+  style,
 }: LensSwatchProps) {
   const dotStyle: CSSProperties = {
     width: size,
     height: size,
-    background: `var(${LENS_TOKEN[lens]})`,
+    background: dotColor ?? `var(${LENS_TOKEN[lens]})`,
   };
+  const countStyle: CSSProperties | undefined =
+    typeof countOpacity === "number" ? { opacity: countOpacity } : undefined;
+  const countContent = countLabel ?? count;
 
   return (
     <span
-      className={[styles.swatch, active ? styles.active : ""].join(" ").trim()}
+      className={[
+        styles.swatch,
+        active ? styles.active : "",
+        preserveLabelCase ? styles.preserveLabelCase : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={style}
     >
       <span className={styles.dot} style={dotStyle} aria-hidden="true" />
       {label && <span className={styles.label}>{label}</span>}
-      {typeof count === "number" && (
-        <span className={styles.count}>{count}</span>
+      {typeof countContent !== "undefined" && (
+        <span className={styles.count} style={countStyle}>
+          {countContent}
+        </span>
       )}
     </span>
   );

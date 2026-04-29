@@ -20,6 +20,10 @@
   font-weight: 500;
 }
 
+.preserveLabelCase .label {
+  text-transform: none;
+}
+
 .count {
   color: var(--color-text-quaternary);
   font-variant-numeric: tabular-nums;

@@ -1,0 +1,278 @@
+.stage {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg, var(--color-bg));
+  padding: var(--space-7) var(--space-6) 132px;
+}
+
+.connectorLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.connector {
+  fill: none;
+  stroke-width: 1px;
+  stroke-dasharray: 1;
+  transition:
+    opacity var(--duration) var(--ease),
+    stroke-dashoffset var(--duration) var(--ease);
+}
+
+.topZone {
+  position: relative;
+  z-index: 2;
+  width: min(720px, 100%);
+  text-align: center;
+}
+
+.label {
+  margin: 0 0 var(--space-4);
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-xs, 11px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-align: center;
+}
+
+.sentence {
+  margin: 0;
+  color: var(--ink, var(--color-text-secondary));
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-size: var(--text-2xl, 32px);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.word {
+  position: relative;
+  display: inline-block;
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
+}
+
+.taggedWord::after {
+  position: absolute;
+  right: 0;
+  bottom: 0.08em;
+  left: 0;
+  height: 1px;
+  background: var(--word-lens-color);
+  content: "";
+  opacity: var(--word-underline-opacity, 0);
+  transition: opacity var(--duration) var(--ease);
+}
+
+.activeWord {
+  box-shadow: 0 0 0 0.24em var(--active-halo);
+}
+
+.rule {
+  width: 80px;
+  height: 1px;
+  margin: var(--space-5) auto var(--space-4);
+  background: var(--rule, var(--color-border-light));
+}
+
+.scrollHint {
+  margin: 0;
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-sm, 13px);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.captionRegion {
+  position: relative;
+  z-index: 2;
+  width: min(720px, 100%);
+  min-height: 190px;
+  padding: var(--space-6) 0;
+}
+
+.blobAnchor {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.teachingCaption {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 620px;
+  width: 100%;
+  margin: 0;
+  color: var(--ink, var(--color-text-secondary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-base, 15px);
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  transition:
+    opacity var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.honestyNote {
+  position: absolute;
+  top: calc(50% + 38px);
+  left: 50%;
+  max-width: 540px;
+  width: 100%;
+  margin: 0;
+  color: var(--ink-muted, var(--color-text-tertiary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-sm, 13px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+  transform: translateX(-50%);
+  transition:
+    opacity var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.captionWord {
+  font-family: var(--font-serif, Georgia, "Times New Roman", serif);
+  font-style: italic;
+}
+
+.f7Caption,
+.f8Caption {
+  position: absolute;
+  left: 50%;
+  z-index: 3;
+  width: min(620px, 100%);
+  margin: 0;
+  text-align: center;
+  transition:
+    opacity var(--duration) var(--ease),
+    transform var(--duration) var(--ease);
+}
+
+.f7Caption {
+  top: calc(42% + 72px);
+  color: var(--ink, var(--color-text-secondary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-base, 15px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.f8Caption {
+  top: calc(42% + 198px);
+  color: var(--ink, var(--color-text-secondary));
+  font-family: "Inter", sans-serif;
+  font-size: var(--text-lg, 18px);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.breathingBlob {
+  animation: beat05-breathing 4s var(--ease) infinite;
+  transform-box: view-box;
+}
+
+@keyframes beat05-breathing {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.swatchStrip {
+  position: absolute;
+  right: var(--space-6);
+  bottom: var(--space-7);
+  left: var(--space-6);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(var(--space-3), 3vw, var(--space-7));
+  pointer-events: none;
+}
+
+.swatchAnchor {
+  display: inline-flex;
+  align-items: center;
+  transform-origin: center;
+}
+
+.swatchPop {
+  animation: swatch-pop 150ms var(--ease);
+}
+
+@keyframes swatch-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 760px) {
+  .stage {
+    padding-right: var(--space-5);
+    padding-left: var(--space-5);
+  }
+
+  .sentence {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .swatchStrip {
+    right: var(--space-5);
+    left: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connector,
+  .word,
+  .teachingCaption,
+  .honestyNote,
+  .f7Caption,
+  .f8Caption {
+    transition: none;
+  }
+
+  .swatchPop {
+    animation: none;
+  }
+
+  .breathingBlob {
+    animation: none;
+  }
+}
