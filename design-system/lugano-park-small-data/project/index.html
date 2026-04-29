@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 2 deliverables · Lugano parks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { display: flex; justify-content: center; padding: var(--space-9) 0; }
+  main { width: 720px; }
+  header { margin-bottom: var(--space-8); }
+  .meta { display: flex; justify-content: space-between; margin-bottom: var(--space-7); }
+  h1 { margin: 0 0 var(--space-3); }
+  .lead { margin: 0 0 var(--space-5); max-width: 560px; }
+  .deliverables { display: flex; flex-direction: column; }
+  .item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: var(--space-5);
+    padding: var(--space-6) 0;
+    border-top: 0.5px solid var(--color-border-light);
+    align-items: baseline;
+    text-decoration: none;
+  }
+  .item:hover { background: var(--color-surface-secondary); }
+  .item:last-of-type { border-bottom: 0.5px solid var(--color-border-light); }
+  .item .num { color: var(--color-text-tertiary); }
+  .item .title { color: var(--color-text-primary); margin: 0 0 var(--space-2); }
+  .item .desc { color: var(--color-text-secondary); margin: 0; max-width: 460px; }
+  .item .arrow { color: var(--color-text-secondary); }
+  .item:hover .arrow { color: var(--color-text-primary); }
+  .note { margin-top: var(--space-7); color: var(--color-text-tertiary); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="meta">
+      <span class="t-label-s">Phase 2 · v1 deliverables</span>
+      <span class="t-label-s">Green spaces of Lugano</span>
+    </div>
+    <h1 class="t-display-l">Four artefacts.</h1>
+    <p class="t-body lead">Each prompt produced as its own file. The reference sheet and Beat&nbsp;04 cards are single layouts; View&nbsp;B and View&nbsp;C are presented on a design canvas with their variants side by side.</p>
+  </header>
+
+  <div class="deliverables">
+    <a class="item" href="01 Reference Sheet.html">
+      <span class="num t-label-s">01</span>
+      <div>
+        <h3 class="t-display-s title">Design system reference sheet</h3>
+        <p class="t-body-s desc">Visual inventory of every locked token — palette, typography, spacing, primitives. Single 720px column.</p>
+      </div>
+      <span class="arrow t-nav">→</span>
+    </a>
+
+    <a class="item" href="02 Beat 04 Cards.html">
+      <span class="num t-label-s">02</span>
+      <div>
+        <h3 class="t-display-s title">Six lens cards · Beat 04</h3>
+        <p class="t-body-s desc">Six 960×480 cards stacked, one per lens. Left half: index, name, gloss, two paragraphs. Right half: 8% wash with five EN and IT example words.</p>
+      </div>
+      <span class="arrow t-nav">→</span>
+    </a>
+
+    <a class="item" href="03 View B Header.html">
+      <span class="num t-label-s">03</span>
+      <div>
+        <h3 class="t-display-s title">View B — header strip · 3 variants</h3>
+        <p class="t-body-s desc">A symmetrical · B identity-forward · C compact single-row. Each on its own artboard, with a trade-off note.</p>
+      </div>
+      <span class="arrow t-nav">→</span>
+    </a>
+
+    <a class="item" href="04 View C Compare.html">
+      <span class="num t-label-s">04</span>
+      <div>
+        <h3 class="t-display-s title">View C — compare all five · 2 variants</h3>
+        <p class="t-body-s desc">A generous (1280×, 180px auras) · B dense (1080×, 140px auras). Modal sits above a dimmed, blurred map ghost.</p>
+      </div>
+      <span class="arrow t-nav">→</span>
+    </a>
+  </div>
+
+  <p class="t-body-s note">Auras are placeholders only — the rendering technique is deferred to Phase 1's blob prototype, per §9 of the system. The View&nbsp;C mockup uses radial-gradient washes inside dashed-border circles to imply composition without committing to a method.</p>
+</main>
+</body>
+</html>

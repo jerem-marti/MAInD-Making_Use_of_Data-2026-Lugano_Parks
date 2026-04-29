@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>03 — View B header strip · 3 variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* override design-canvas default font for our content */
+  body { font-family: 'Inter', sans-serif; }
+
+  /* ============================================================ */
+  /* Shared header pieces                                         */
+  /* ============================================================ */
+  .vb-frame {
+    width: 1200px;
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .vb-header {
+    background: var(--color-bg);
+    border-bottom: 0.5px solid var(--color-border-light);
+    padding: 0 var(--space-7);
+  }
+  .vb-canvas {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+  }
+  .vb-canvas .canvas-label {
+    color: var(--color-text-quaternary);
+  }
+
+  /* Cycle arrow buttons */
+  .cycle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 400;
+    padding: 0;
+    transition: color 200ms ease;
+  }
+  .cycle:hover { color: var(--color-text-primary); }
+
+  /* Aura placeholder sized 64px */
+  .aura-64 {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* The aura placeholder takes a soft conic just to imply the blend
+     while keeping a clear "placeholder" border — this is allowed by
+     the brief because the prompt says "approximate composition" and the
+     user requested a placeholder rather than a real aura. */
+  .aura-placeholder.proxy {
+    border: 0.5px solid var(--color-border-light);
+    background:
+      radial-gradient(circle at 30% 30%, #B8A4F0 0%, transparent 55%),
+      radial-gradient(circle at 75% 35%, #6BD8EF 0%, transparent 50%),
+      radial-gradient(circle at 70% 75%, #5FE3A8 0%, transparent 50%),
+      radial-gradient(circle at 30% 80%, #A8B8C8 0%, transparent 55%),
+      radial-gradient(circle at 50% 50%, #F0CD3D 0%, transparent 35%),
+      var(--color-surface-secondary);
+    filter: saturate(0.85);
+  }
+  .aura-placeholder.proxy::after {
+    content: 'aura · placeholder';
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    background: rgba(250, 247, 242, 0.85);
+    padding: 1px 5px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ============================================================ */
+  /* VARIANT A — Symmetrical                                      */
+  /* ============================================================ */
+  .vb-a {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+  .vb-a .row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-5);
+  }
+  .vb-a .row1-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .vb-a .row2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .vb-a .identity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+  .vb-a .identity-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .vb-a .identity-meta .park-name { margin: 0; }
+
+  /* ============================================================ */
+  /* VARIANT B — Identity-forward                                 */
+  /* ============================================================ */
+  .vb-b {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-4);
+  }
+  .vb-b .row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-bottom: var(--space-4);
+  }
+  .vb-b .identity-cluster {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .vb-b .identity-cluster .park-name { margin: 0; }
+  .vb-b .row2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .vb-b .meta-stack {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* ============================================================ */
+  /* VARIANT C — Compact single-row                               */
+  /* ============================================================ */
+  .vb-c {
+    height: 64px;
+    padding: 0 var(--space-7);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .vb-c .compact-cycle {
+    width: 28px; height: 28px; font-size: 18px;
+  }
+  .vb-c .park-name { margin: 0; }
+  .vb-c .aura-slot {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .vb-c .aura-32 { width: 32px; height: 32px; }
+  .vb-c .aura-32::after { display: none; }
+  .vb-c .subtitle-inline { color: var(--color-text-secondary); }
+  .vb-c .pos-inline { margin-left: var(--space-2); }
+
+  /* dot separator inline */
+  .dot-sep { margin: 0 0.4em; opacity: 0.6; color: var(--color-text-tertiary); }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<script type="text/babel">
+// ───────────────────────── shared bits ─────────────────────────
+
+function Aura({ size = 64, withCaption = true, className = '' }) {
+  const cls = `aura-placeholder proxy aura-${size}` + (className ? ' ' + className : '');
+  return (
+    <div className={cls} style={{ width: size, height: size }} aria-hidden="true">
+      {withCaption && size >= 56 ? null : null}
+    </div>
+  );
+}
+
+function VariantCanvas({ children }) {
+  return <div className="vb-frame">{children}</div>;
+}
+
+function CanvasArea() {
+  return (
+    <div className="vb-canvas">
+      <span className="t-label-s">[ word network canvas ]</span>
+    </div>
+  );
+}
+
+// ───────────────────────── VARIANT A ───────────────────────────
+function VariantA() {
+  return (
+    <VariantCanvas>
+      <header className="vb-header vb-a">
+        <div className="row1">
+          <a className="link-inline" href="#">← Back to map</a>
+          <div className="row1-right">
+            <Aura size={40} />
+            <button className="btn-primary">Compare all five</button>
+          </div>
+        </div>
+        <div className="row2">
+          <div className="identity">
+            <button className="cycle" aria-label="Previous park">‹</button>
+            <div className="identity-meta">
+              <h1 className="t-display-m park-name">Parco Ciani</h1>
+              <div className="t-body-s">
+                <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>1,620</span> reviewed words
+                <span className="dot-sep">·</span>
+                <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>98</span> distinct words
+              </div>
+              <div className="t-label-s" style={{marginTop: 'var(--space-1)'}}>2 of 5</div>
+            </div>
+            <button className="cycle" aria-label="Next park">›</button>
+          </div>
+        </div>
+      </header>
+      <CanvasArea />
+    </VariantCanvas>
+  );
+}
+
+// ───────────────────────── VARIANT B ───────────────────────────
+function VariantB() {
+  return (
+    <VariantCanvas>
+      <header className="vb-header vb-b">
+        <div className="row1">
+          <div className="identity-cluster">
+            <button className="cycle" aria-label="Previous park">‹</button>
+            <h1 className="t-display-m park-name">Parco Ciani</h1>
+            <button className="cycle" aria-label="Next park">›</button>
+          </div>
+          <Aura size={64} />
+        </div>
+        <div className="row2">
+          <a className="link-inline" href="#">← Back to map</a>
+          <div className="meta-stack">
+            <span className="t-body-s">
+              <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>1,620</span> reviewed words
+              <span className="dot-sep">·</span>
+              <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>98</span> distinct words
+            </span>
+            <span className="t-label-s">2 of 5</span>
+          </div>
+          <button className="btn-primary">Compare all five</button>
+        </div>
+      </header>
+      <CanvasArea />
+    </VariantCanvas>
+  );
+}
+
+// ───────────────────────── VARIANT C ───────────────────────────
+function VariantC() {
+  return (
+    <VariantCanvas>
+      <header className="vb-header vb-c">
+        <a className="link-inline" href="#">← Back to map</a>
+        <button className="cycle compact-cycle" aria-label="Previous park">‹</button>
+        <h1 className="t-display-m park-name">Parco Ciani</h1>
+        <button className="cycle compact-cycle" aria-label="Next park">›</button>
+        <span className="t-body-s subtitle-inline">
+          <span className="dot-sep">·</span>
+          <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>1,620</span> reviewed words
+          <span className="dot-sep">·</span>
+          <span style={{fontWeight: 500, color: 'var(--color-text-primary)'}}>98</span> distinct words
+        </span>
+        <span className="t-label-s pos-inline">2 of 5</span>
+        <div className="aura-slot">
+          <Aura size={32} />
+          <button className="btn-primary">Compare all five</button>
+        </div>
+      </header>
+      <CanvasArea />
+    </VariantCanvas>
+  );
+}
+
+// ───────────────────── Canvas composition ─────────────────────
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="view-b-headers"
+        title="View B — Park header strip"
+        subtitle="Three variants. Same locked tokens; different relationship between navigation chrome and park identity."
+      >
+        <DCArtboard
+          id="variant-a"
+          label="A · Symmetrical · ~120px tall"
+          width={1200}
+          height={324}
+          note="Most balanced. Two clear rows: chrome on top, identity centred below. Tallest variant — uses the most vertical space but reads at the back of a room."
+        >
+          <VariantA />
+        </DCArtboard>
+        <DCArtboard
+          id="variant-b"
+          label="B · Identity-forward · ~108px tall"
+          width={1200}
+          height={312}
+          note="Park name leads. Aura sits inline with the title, anchoring the right edge of row one. Chrome retreats to row two."
+        >
+          <VariantB />
+        </DCArtboard>
+        <DCArtboard
+          id="variant-c"
+          label="C · Compact single-row · 64px"
+          width={1200}
+          height={264}
+          note="Everything in one line. Cheapest in vertical real estate, but density is high — risks legibility at projector distance."
+        >
+          <VariantC />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>

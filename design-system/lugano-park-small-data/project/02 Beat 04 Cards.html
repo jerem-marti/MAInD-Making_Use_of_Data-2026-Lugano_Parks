@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>02 — Beat 04 lens cards · Lugano parks</title>
+<meta name="viewport" content="width=1024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-9) 0;
+    gap: var(--space-6);
+  }
+
+  .doc-meta {
+    width: 960px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+  }
+
+  /* Each card */
+  .lens-card {
+    width: 960px;
+    height: 480px;
+    display: grid;
+    grid-template-columns: 480px 480px;
+    background: var(--color-bg);
+    position: relative;
+  }
+
+  /* LEFT half */
+  .lens-card .left {
+    position: relative;
+    padding: var(--space-8) var(--space-7) var(--space-8) var(--space-9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .lens-card .accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+  .lens-card .lens-index {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-3);
+  }
+  .lens-card .lens-name {
+    margin: 0 0 var(--space-2);
+  }
+  .lens-card .lens-gloss {
+    margin: 0 0 var(--space-6);
+  }
+  .lens-card .copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 380px;
+  }
+  .lens-card .copy p {
+    margin: 0;
+  }
+
+  /* RIGHT half — wash */
+  .lens-card .right {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-7);
+    border-left: 0.5px solid var(--color-border-light);
+  }
+  .lens-card .right .wash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .lens-card .words-en {
+    position: relative;
+    margin-bottom: var(--space-4);
+    /* display-s, but coloured per lens */
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+  .lens-card .words-it {
+    position: relative;
+    color: var(--color-text-tertiary);
+    /* body */
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  .lens-card .dot-sep {
+    margin: 0 0.4em;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<header class="doc-meta">
+  <span class="t-label-s">Beat 04 · Six lenses</span>
+  <span class="t-label-s">Act I · scrolly-telling</span>
+</header>
+
+<!-- ============ 01 EMOTIONAL ============ -->
+<section class="lens-card" data-lens="emotional">
+  <div class="left">
+    <div class="accent" style="background: #B8A4F0;"></div>
+    <div class="lens-index" style="color: #B8A4F0;">Lens 01</div>
+    <h2 class="t-display-l lens-name">Experiential–Emotional</h2>
+    <p class="t-body-l lens-gloss">how a place made someone feel</p>
+    <div class="copy">
+      <p class="t-body">This is the most personal lens. It captures the inner state of the visitor — the emotional residue left by a park visit. Not what was there, but what it did to you.</p>
+      <p class="t-body">When someone calls a park magical or peaceful, they aren't describing a feature. They're describing a transformation. This lens listens for exactly that.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #B8A4F0; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #B8A4F0;">
+      beautiful<span class="dot-sep">·</span>peaceful<span class="dot-sep">·</span>wonderful<span class="dot-sep">·</span>relaxing<span class="dot-sep">·</span>magical
+    </div>
+    <div class="words-it">
+      bello<span class="dot-sep">·</span>tranquillo<span class="dot-sep">·</span>meraviglioso<span class="dot-sep">·</span>rilassante<span class="dot-sep">·</span>magico
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 SENSORY ============ -->
+<section class="lens-card" data-lens="sensory">
+  <div class="left">
+    <div class="accent" style="background: #5FE3A8;"></div>
+    <div class="lens-index" style="color: #5FE3A8;">Lens 02</div>
+    <h2 class="t-display-l lens-name">Sensory–Environmental</h2>
+    <p class="t-body-l lens-gloss">what it looked, sounded, smelled like</p>
+    <div class="copy">
+      <p class="t-body">Before you have time to form a feeling, your senses are already at work. This lens captures the raw perceptual character of a park — its palette, its soundscape, its textures.</p>
+      <p class="t-body">It's the difference between arriving somewhere and landing somewhere. The air, the light, the quiet that tells you immediately what kind of place this is.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #5FE3A8; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #5FE3A8;">
+      green<span class="dot-sep">·</span>quiet<span class="dot-sep">·</span>clean<span class="dot-sep">·</span>shaded<span class="dot-sep">·</span>view
+    </div>
+    <div class="words-it">
+      verde<span class="dot-sep">·</span>silenzioso<span class="dot-sep">·</span>pulito<span class="dot-sep">·</span>ombreggiato<span class="dot-sep">·</span>vista
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ACTION ============ -->
+<section class="lens-card" data-lens="action">
+  <div class="left">
+    <div class="accent" style="background: #6BD8EF;"></div>
+    <div class="lens-index" style="color: #6BD8EF;">Lens 03</div>
+    <h2 class="t-display-l lens-name">Action</h2>
+    <p class="t-body-l lens-gloss">what people did there</p>
+    <div class="copy">
+      <p class="t-body">Some parks are experienced passively. Others are experienced in motion. This lens captures the kinetic dimension — the activities and practices that make a park what it is.</p>
+      <p class="t-body">A high Action weight is the signature of a park that's used, not just visited. People don't pass through; they walk, picnic, photograph, play.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #6BD8EF; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #6BD8EF;">
+      walk<span class="dot-sep">·</span>relax<span class="dot-sep">·</span>picnic<span class="dot-sep">·</span>visit<span class="dot-sep">·</span>play
+    </div>
+    <div class="words-it">
+      passeggiare<span class="dot-sep">·</span>rilassarsi<span class="dot-sep">·</span>picnic<span class="dot-sep">·</span>visitare<span class="dot-sep">·</span>giocare
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 RELATIONAL ============ -->
+<section class="lens-card" data-lens="relational">
+  <div class="left">
+    <div class="accent" style="background: #F0CD3D;"></div>
+    <div class="lens-index" style="color: #F0CD3D;">Lens 04</div>
+    <h2 class="t-display-l lens-name">Relational Context</h2>
+    <p class="t-body-l lens-gloss">who was there, who it's for</p>
+    <div class="copy">
+      <p class="t-body">A park is not just a place — it's a social context. This lens listens for the people in the picture: who's writing the review, who they brought, who they noticed around them.</p>
+      <p class="t-body">It tells you whether a park belongs to families with strollers, to elderly locals on a regular bench, or to tourists passing through. That social identity shapes the experience as much as the landscape does.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #F0CD3D; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #F0CD3D;">
+      children<span class="dot-sep">·</span>families<span class="dot-sep">·</span>couples<span class="dot-sep">·</span>dogs<span class="dot-sep">·</span>groups
+    </div>
+    <div class="words-it">
+      bambini<span class="dot-sep">·</span>famiglie<span class="dot-sep">·</span>coppie<span class="dot-sep">·</span>cani<span class="dot-sep">·</span>gruppi
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 INFRASTRUCTURE ============ -->
+<section class="lens-card" data-lens="infrastructure">
+  <div class="left">
+    <div class="accent" style="background: #A8B8C8;"></div>
+    <div class="lens-index" style="color: #A8B8C8;">Lens 05</div>
+    <h2 class="t-display-l lens-name">Infrastructure–Amenities</h2>
+    <p class="t-body-l lens-gloss">what was physically there</p>
+    <div class="copy">
+      <p class="t-body">This is the most concrete of the six. It names the things that are actually there — benches, fountains, playgrounds, paths. The physical fabric of the park.</p>
+      <p class="t-body">A high Infrastructure weight often signals a park well-equipped and frequently used for specific purposes — or a park whose physical distinctiveness makes it memorable enough to mention.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #A8B8C8; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #A8B8C8;">
+      bench<span class="dot-sep">·</span>playground<span class="dot-sep">·</span>trees<span class="dot-sep">·</span>path<span class="dot-sep">·</span>fountain
+    </div>
+    <div class="words-it">
+      panchina<span class="dot-sep">·</span>parco giochi<span class="dot-sep">·</span>alberi<span class="dot-sep">·</span>sentiero<span class="dot-sep">·</span>fontana
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 TENSION ============ -->
+<section class="lens-card" data-lens="tension">
+  <div class="left">
+    <div class="accent" style="background: #9A8BA8;"></div>
+    <div class="lens-index" style="color: #9A8BA8;">Lens 06</div>
+    <h2 class="t-display-l lens-name">Tension–Complaint</h2>
+    <p class="t-body-l lens-gloss">what disappointed</p>
+    <div class="copy">
+      <p class="t-body">No park is perfect, and honest portraits require acknowledging the friction. This lens captures the negative signals — the crowding, the neglect, the small failures that chip away at the experience.</p>
+      <p class="t-body">A park with very low Tension is genuinely exceptional. Most have some, and that matters. Suppressing it would make the aura a flattery, not a portrait.</p>
+    </div>
+  </div>
+  <div class="right">
+    <div class="wash" style="background: #9A8BA8; opacity: 0.08;"></div>
+    <div class="words-en" style="color: #9A8BA8;">
+      dirty<span class="dot-sep">·</span>crowded<span class="dot-sep">·</span>neglected<span class="dot-sep">·</span>broken<span class="dot-sep">·</span>noisy
+    </div>
+    <div class="words-it">
+      sporco<span class="dot-sep">·</span>affollato<span class="dot-sep">·</span>trascurato<span class="dot-sep">·</span>rotto<span class="dot-sep">·</span>rumoroso
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
