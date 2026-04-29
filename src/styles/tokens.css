@@ -1,52 +1,14 @@
-/* Act I tokens — Phase 2 placeholders.
+/* Single source of truth for design tokens is the Phase 2 design-system
+ * handoff at design-system/lugano-park-small-data/project/tokens.css.
+ * We import it here so every component reads the handoff values directly
+ * — no parallel placeholder palette, no drift between Act I and Act II.
  *
- * The lens colours below are the placeholders the Phase 2 setup spec
- * provided. They differ from the Phase 2 design-system handoff
- * (design-system/lugano-park-small-data/project/tokens.css) and are
- * expected to be replaced with the handoff palette once visual review
- * is complete. See README.md, "Token review" section.
- */
+ * Anything not covered by the handoff (motion timings) lives below as a
+ * small extension keyed off handoff conventions. */
+
+@import url("../../design-system/lugano-park-small-data/project/tokens.css");
 
 :root {
-  --bg: #FAF8F4;
-  --ink: #1A1A1A;
-  --ink-muted: #6B6B6B;
-  --ink-faint: #B8B8B8;
-  --primary: #1F4435;
-  --rule: #E8E5DE;
-
-  /* Six lens colours — Phase 2 visual review placeholders */
-  --lens-emotional: #C9663D;
-  --lens-sensory: #5B8C7B;
-  --lens-action: #D9A441;
-  --lens-relational: #D88A7A;
-  --lens-infrastructure: #6B7F92;
-  --lens-tension: #7C6F8E;
-
-  /* Type */
-  --font-serif: Georgia, "Times New Roman", serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2rem;
-  --text-3xl: 2.75rem;
-  --text-4xl: 4rem;
-
-  /* Spacing — 8px base */
-  --space-1: 0.5rem;
-  --space-2: 1rem;
-  --space-3: 1.5rem;
-  --space-4: 2rem;
-  --space-6: 3rem;
-  --space-8: 4rem;
-  --space-12: 6rem;
-  --space-16: 8rem;
-
-  /* Motion */
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --duration-fast: 200ms;
   --duration: 400ms;

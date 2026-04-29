@@ -88,8 +88,8 @@ export function Blob({
           cx={cx}
           cy={cy}
           r={size * 0.42}
-          fill="var(--rule)"
-          opacity={0.35}
+          fill="var(--color-surface-secondary)"
+          opacity={0.6}
         />
         {LENSES.map((lens, i) => {
           const w = norm[lens];

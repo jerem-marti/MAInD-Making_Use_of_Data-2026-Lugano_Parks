@@ -71,6 +71,11 @@ function isMissing(v: unknown): boolean {
  * tooltip excerpt).
  */
 function fixMojibake(s: string): string {
+  // The xlsx came through Mac-Roman → UTF-8 round-tripping. The patterns
+  // below cover the cases we have so far seen in this corpus. Extending
+  // the table is a deferred task: revisit when more parks / more reviews
+  // are added so we can confirm the full set of artefacts before
+  // committing to a mapping.
   return s
     .replace(/√©/g, "é")
     .replace(/√†/g, "à")
@@ -78,7 +83,13 @@ function fixMojibake(s: string): string {
     .replace(/√¨/g, "ì")
     .replace(/√≤/g, "ò")
     .replace(/√π/g, "ù")
-    .replace(/√ß/g, "ç");
+    .replace(/√ß/g, "ç")
+    .replace(/‚Ä¶/g, "…")
+    .replace(/‚Äô/g, "’")
+    .replace(/‚Äú/g, "“")
+    .replace(/‚Äù/g, "”")
+    .replace(/‚Äì/g, "–")
+    .replace(/‚Äî/g, "—");
 }
 
 function slugify(name: string): string {

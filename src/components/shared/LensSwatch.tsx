@@ -12,12 +12,12 @@ export const LENSES = [
 export type Lens = (typeof LENSES)[number];
 
 export const LENS_TOKEN: Record<Lens, string> = {
-  emotional: "--lens-emotional",
-  sensory: "--lens-sensory",
-  action: "--lens-action",
-  relational: "--lens-relational",
-  infrastructure: "--lens-infrastructure",
-  tension: "--lens-tension",
+  emotional: "--color-emotional",
+  sensory: "--color-sensory",
+  action: "--color-action",
+  relational: "--color-relational",
+  infrastructure: "--color-infrastructure",
+  tension: "--color-tension",
 };
 
 /**

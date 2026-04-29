@@ -60,36 +60,21 @@ npm run dev          # Vite dev server (Act I React app)
 └── screenshots/phase3/                   # Phase 3 layout-evaluation captures
 ```
 
-## Token review — what to refresh after visual review
+## Tokens — handoff is the source of truth
 
-`src/styles/tokens.css` was created from the **Phase 2 setup spec** with
-explicitly-marked placeholder values. The design-system handoff in
-`design-system/lugano-park-small-data/project/tokens.css` defines a
-different set of tokens (different naming convention, different lens
-palette). Both currently exist in this repo. They will eventually need
-to be reconciled.
+`src/styles/tokens.css` is a thin shim that `@import`s the Phase 2
+design-system handoff at
+`design-system/lugano-park-small-data/project/tokens.css` and adds
+motion timings (`--ease`, `--duration`, `--duration-fast`,
+`--duration-slow`) which the handoff doesn't define. Components reference
+handoff token names directly (`--color-bg`, `--color-text-primary`,
+`--color-emotional`, …); Inter is used everywhere; the deep-forest-green
+and coral/amber lens placeholders that the Phase 2 setup spec listed are
+**not** used in this build — the handoff palette wins.
 
-Items in `src/styles/tokens.css` that should be reviewed against the
-handoff before the project ships:
-
-| Token | Placeholder value | Handoff equivalent |
-|---|---|---|
-| `--lens-emotional` | `#C9663D` warm amber/terracotta | `--color-emotional` `#B8A4F0` lavender |
-| `--lens-sensory` | `#5B8C7B` muted green | `--color-sensory` `#5FE3A8` mint |
-| `--lens-action` | `#D9A441` citrus yellow | `--color-action` `#6BD8EF` cyan |
-| `--lens-relational` | `#D88A7A` coral/peach | `--color-relational` `#F0CD3D` yellow |
-| `--lens-infrastructure` | `#6B7F92` slate blue | `--color-infrastructure` `#A8B8C8` slate |
-| `--lens-tension` | `#7C6F8E` dusty purple | `--color-tension` `#FF7060` coral |
-| `--bg` | `#FAF8F4` | `--color-bg` `#FAF7F2` (very close) |
-| `--primary` | `#1F4435` deep forest green | (no handoff equivalent — handoff uses `#1A1A1A`) |
-
-The handoff is the source of truth long-term, but the spec asked for
-the placeholder values above for Phase 2 setup. Replacement should
-happen as a single sweep after visual review.
-
-The headline serif (`Georgia`) also conflicts with the handoff, which
-locks `Inter` for everything; the spec asked for Georgia in headlines
-and the worked-example sentence. Confirm during visual review.
+If the handoff palette ever changes, this file does not need to be
+edited; just update the handoff `tokens.css` and every component picks
+up the new values.
 
 ## Data shapes
 
@@ -140,11 +125,13 @@ layout. Untouched by Act I.
    `scripts/preprocess.ts` via `TOP_TERMS_PER_PARK`.
 4. **Excerpts pool round-robins across parks** so it isn't dominated by
    the largest park. Pool size is currently 90; the spec asked for 30+.
-5. **Mojibake residue in some excerpts.** The preprocessor fixes the
-   common Italian-vowel mojibakes (`√©` → `é`, etc.). A small number of
-   excerpts still contain other UTF-8 round-trip artefacts (e.g. emoji
-   like `üòç`, ellipsis `‚Ä¶`). Beat 01 should filter these or we
-   should extend the mojibake table when we know the full set.
+5. **Mojibake table extended; further extension deferred.** The
+   preprocessor now fixes the common Italian-vowel mojibakes (`√©` →
+   `é`, etc.) plus the punctuation set we have observed (`‚Ä¶` → `…`,
+   `‚Äô` → `’`, smart quotes, en/em dashes). All of these are
+   Mac-Roman → UTF-8 round-trip artefacts of the same shape. Emoji
+   mojibakes (`üòç` and similar) remain — extending the table to cover
+   the full set is deferred to when we have the full corpus.
 6. **Phase 3 View B network is parked, not deleted.** It still works
    if you re-point `index.html` at `/src/main.ts`. Worth noting before
    anyone "cleans up unused files".
