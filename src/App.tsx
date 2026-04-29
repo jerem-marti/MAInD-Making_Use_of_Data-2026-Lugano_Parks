@@ -26,7 +26,7 @@ export default function App() {
       <ScrollSection vh={6} id="beat-05" label="Beat 05 — Worked example">
         <Beat05WorkedExample />
       </ScrollSection>
-      <ScrollSection vh={2} id="beat-06" label="Beat 06 — Map">
+      <ScrollSection vh={4} id="beat-06" label="Beat 06 — Map">
         <Beat06Map />
       </ScrollSection>
     </main>
