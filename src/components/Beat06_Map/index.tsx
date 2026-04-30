@@ -166,6 +166,7 @@ function persistOnboardingDismissed() {
 
 type Beat06MapProps = {
   onCompareClick?: () => void;
+  onFeedbackClick?: () => void;
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
   onMarkerPositionsChange?: (
     positions: Record<string, MarkerScreenPosition>,
@@ -174,6 +175,7 @@ type Beat06MapProps = {
 
 export function Beat06Map({
   onCompareClick,
+  onFeedbackClick,
   onMarkerPositionsChange,
   onParkClick,
 }: Beat06MapProps) {
@@ -289,13 +291,22 @@ export function Beat06Map({
           reducedMotion={reducedMotion}
         />
 
-        <button
-          className={`${styles.compareButton} btn-primary`}
-          onClick={onCompareClick}
-          type="button"
-        >
-          Compare all five
-        </button>
+        <div className={styles.mapActions}>
+          <button
+            className="btn-primary"
+            onClick={onFeedbackClick}
+            type="button"
+          >
+            Tell us how you feel
+          </button>
+          <button
+            className="btn-primary"
+            onClick={onCompareClick}
+            type="button"
+          >
+            Compare all five
+          </button>
+        </div>
 
         <header className={styles.mapHeader} style={fadeStyle(introProgress)}>
           <h1 className="t-display-m">An Aura of Words</h1>

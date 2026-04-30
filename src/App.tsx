@@ -24,6 +24,7 @@ import {
 } from "./transitions/ActIIChoreography";
 import { ParkView } from "./views/ParkView/ParkView";
 import { CompareView } from "./views/CompareView/CompareView";
+import { FeedbackView } from "./views/FeedbackView/FeedbackView";
 
 /**
  * Act I — single-page scrolly. Each beat is pinned for `vh` viewport
@@ -45,8 +46,8 @@ function shouldIgnoreKeydown(event: KeyboardEvent): boolean {
 
 function AppShell() {
   const {
-    state: { actIIView, compareOpen, selectedParkId },
-    actions: { backToMap, closeCompare, cyclePark, enterPark, openCompare },
+    state: { actIIView, compareOpen, feedbackOpen, selectedParkId },
+    actions: { backToMap, closeCompare, cyclePark, enterPark, openCompare, openFeedback },
   } = useActII();
   const previousViewRef = useRef(actIIView);
   const previousParkRef = useRef(selectedParkId);
@@ -171,7 +172,7 @@ function AppShell() {
         return;
       }
 
-      if (actIIView !== "park" || compareOpen) return;
+      if (actIIView !== "park" || compareOpen || feedbackOpen) return;
 
       if (event.key === "Escape") {
         event.preventDefault();
@@ -193,6 +194,7 @@ function AppShell() {
     closeCompare,
     compareOpen,
     cyclePark,
+    feedbackOpen,
   ]);
 
   if (actIIView === "park") {
@@ -208,6 +210,7 @@ function AppShell() {
             transition={parkTransition}
           />
         </div>
+        {feedbackOpen ? <FeedbackView /> : null}
         {compareOpen ? (
           <CompareView onEnterPark={enterParkWithChoreography} />
         ) : null}
@@ -237,11 +240,13 @@ function AppShell() {
         <ScrollSection vh={4} id="beat-06" label="Beat 06 — Map">
           <Beat06Map
             onCompareClick={openCompare}
+            onFeedbackClick={openFeedback}
             onMarkerPositionsChange={handleMarkerPositionsChange}
             onParkClick={enterParkWithChoreography}
           />
         </ScrollSection>
       </main>
+      {feedbackOpen ? <FeedbackView /> : null}
       {compareOpen ? (
         <CompareView onEnterPark={enterParkWithChoreography} />
       ) : null}
