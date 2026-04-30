@@ -19,6 +19,11 @@ type MarkerRecord = {
   root: Root;
 };
 
+function disposeMarkerRecord({ marker, root }: MarkerRecord) {
+  marker.remove();
+  window.setTimeout(() => root.unmount(), 0);
+}
+
 export type MarkerScreenPosition = {
   x: number;
   y: number;
@@ -63,6 +68,10 @@ function smooth(value: number): number {
   return value * value * (3 - 2 * value);
 }
 
+function lerp(from: number, to: number, progress: number): number {
+  return from + (to - from) * progress;
+}
+
 function bloomProgress(
   progress: number,
   order: number,
@@ -81,9 +90,32 @@ function fitToMarkers(
   const container = map.getContainer();
   const width = container.clientWidth || 960;
   const height = container.clientHeight || 480;
-  const horizontal = Math.round(clamp(width * 0.13, 48, 120));
-  const vertical = Math.round(clamp(height * 0.16, 48, 80));
-  const overlaySpace = Math.round(clamp(width * 0.18, 0, 160) * expandProgress);
+  const fullscreenProgress = smooth(clamp(expandProgress));
+  const compact = width <= 720;
+  const feedHorizontal = clamp(width * 0.13, 48, 120);
+  const fullHorizontal = compact
+    ? clamp(width * 0.18, 64, 76)
+    : clamp(width * 0.05, 44, 72);
+  const feedVertical = clamp(height * 0.16, 48, 80);
+  const fullVertical = compact
+    ? clamp(height * 0.08, 40, 72)
+    : clamp(height * 0.06, 44, 64);
+  const horizontal = Math.round(
+    lerp(feedHorizontal, fullHorizontal, fullscreenProgress),
+  );
+  const vertical = Math.round(
+    lerp(feedVertical, fullVertical, fullscreenProgress),
+  );
+  const overlaySpace = compact
+    ? 0
+    : Math.round(
+        lerp(0, clamp(width * 0.08, 0, 72), fullscreenProgress),
+      );
+  const maxZoom = lerp(
+    13.6,
+    compact ? 13.85 : height <= 760 ? 14.25 : 14.45,
+    fullscreenProgress,
+  );
 
   map.fitBounds(bounds, {
     animate: false,
@@ -93,7 +125,7 @@ function fitToMarkers(
       bottom: vertical,
       left: Math.min(Math.round(width * 0.45), horizontal + overlaySpace),
     },
-    maxZoom: 13.6,
+    maxZoom,
   });
 }
 
@@ -122,6 +154,21 @@ function projectMarkerPositions(
       ];
     }),
   );
+}
+
+function updateMapProjection(
+  map: maplibregl.Map,
+  bounds: maplibregl.LngLatBounds,
+  markers: ParkMarker[],
+  expandProgress: number,
+  onMarkerPositionsChange?: (
+    positions: Record<string, MarkerScreenPosition>,
+  ) => void,
+) {
+  map.resize();
+
+  fitToMarkers(map, bounds, expandProgress);
+  onMarkerPositionsChange?.(projectMarkerPositions(map, markers));
 }
 
 function markerStyle(
@@ -254,6 +301,19 @@ export function MapLibreMap({
     return next;
   }, [markers]);
 
+  const boundsRef = useRef(bounds);
+  const expandProgressRef = useRef(expandProgress);
+  const markersDataRef = useRef(markers);
+  const onMarkerPositionsChangeRef = useRef(onMarkerPositionsChange);
+  const loadFrameRef = useRef<number | null>(null);
+  const settleFrameRef = useRef<number | null>(null);
+  const resizeFrameRef = useRef<number | null>(null);
+
+  boundsRef.current = bounds;
+  expandProgressRef.current = expandProgress;
+  markersDataRef.current = markers;
+  onMarkerPositionsChangeRef.current = onMarkerPositionsChange;
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -277,33 +337,98 @@ export function MapLibreMap({
     map.doubleClickZoom.disable();
     map.getCanvas().tabIndex = -1;
 
+    updateMapProjection(
+      map,
+      boundsRef.current,
+      markersDataRef.current,
+      expandProgressRef.current,
+      onMarkerPositionsChangeRef.current,
+    );
+
     map.on("load", () => {
       hideSymbolLayers(map);
-      fitToMarkers(map, bounds, 0);
-      onMarkerPositionsChange?.(projectMarkerPositions(map, markers));
+      updateMapProjection(
+        map,
+        boundsRef.current,
+        markersDataRef.current,
+        expandProgressRef.current,
+        onMarkerPositionsChangeRef.current,
+      );
+      loadFrameRef.current = requestAnimationFrame(() => {
+        updateMapProjection(
+          map,
+          boundsRef.current,
+          markersDataRef.current,
+          expandProgressRef.current,
+          onMarkerPositionsChangeRef.current,
+        );
+        settleFrameRef.current = requestAnimationFrame(() => {
+          updateMapProjection(
+            map,
+            boundsRef.current,
+            markersDataRef.current,
+            expandProgressRef.current,
+            onMarkerPositionsChangeRef.current,
+          );
+        });
+      });
     });
 
-    return () => {
-      markersRef.current.forEach(({ marker, root }) => {
-        root.unmount();
-        marker.remove();
+    const resizeObserver = new ResizeObserver(() => {
+      if (resizeFrameRef.current !== null) {
+        cancelAnimationFrame(resizeFrameRef.current);
+      }
+
+      resizeFrameRef.current = requestAnimationFrame(() => {
+        updateMapProjection(
+          map,
+          boundsRef.current,
+          markersDataRef.current,
+          expandProgressRef.current,
+          onMarkerPositionsChangeRef.current,
+        );
       });
+    });
+    resizeObserver.observe(container);
+
+    return () => {
+      if (loadFrameRef.current !== null) {
+        cancelAnimationFrame(loadFrameRef.current);
+      }
+      if (settleFrameRef.current !== null) {
+        cancelAnimationFrame(settleFrameRef.current);
+      }
+      if (resizeFrameRef.current !== null) {
+        cancelAnimationFrame(resizeFrameRef.current);
+      }
+      resizeObserver.disconnect();
+      markersRef.current.forEach(disposeMarkerRecord);
       markersRef.current = [];
       map.remove();
       mapRef.current = null;
     };
-  }, [bounds, markers, onMarkerPositionsChange]);
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
+    updateMapProjection(
+      map,
+      bounds,
+      markers,
+      expandProgress,
+      onMarkerPositionsChange,
+    );
+
     const frame = requestAnimationFrame(() => {
-      map.resize();
-      if (map.loaded()) {
-        fitToMarkers(map, bounds, expandProgress);
-        onMarkerPositionsChange?.(projectMarkerPositions(map, markers));
-      }
+      updateMapProjection(
+        map,
+        bounds,
+        markers,
+        expandProgress,
+        onMarkerPositionsChange,
+      );
     });
 
     return () => cancelAnimationFrame(frame);
@@ -349,10 +474,7 @@ export function MapLibreMap({
 
     markersRef.current
       .filter((record) => !markers.some((marker) => marker.id === record.id))
-      .forEach((record) => {
-        record.root.unmount();
-        record.marker.remove();
-      });
+      .forEach(disposeMarkerRecord);
     markersRef.current = records;
   }, [labelsProgress, markers, onParkClick, progress, reducedMotion]);
 

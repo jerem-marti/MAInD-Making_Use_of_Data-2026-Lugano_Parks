@@ -340,7 +340,6 @@
   stroke-linecap: round;
   stroke-width: 0.5;
   marker-end: url(#beat06-arrowhead);
-  transition: opacity var(--duration) var(--ease);
 }
 
 .annotationArrows marker {
