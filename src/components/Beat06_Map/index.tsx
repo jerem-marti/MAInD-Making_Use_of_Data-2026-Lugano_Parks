@@ -7,7 +7,7 @@ import {
   type CSSProperties,
 } from "react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
-import { CATEGORY_TO_LENS, LENSES } from "../shared/LensSwatch";
+import { CATEGORY_TO_LENS, LENSES, LensSwatch } from "../shared/LensSwatch";
 import { useScrollProgressValue } from "../shared/ScrollSection";
 import type { BlobV2Weights } from "../shared/BlobV2";
 import {
@@ -22,9 +22,10 @@ const MAX_DIAMETER = 180;
 const MIN_DIAMETER = 32;
 const ONBOARDING_REVEAL_THRESHOLD = 0.7;
 
-// Module-level so the dismissal survives Beat06Map remounts within a single
-// page load (e.g. round-trips through ParkView), but resets on reload.
+// Module-level so these states survive Beat06Map remounts within a single
+// page load (e.g. round-trips through ParkView), but reset on reload.
 let onboardingDismissedThisLoad = false;
+let wordCountRevealedThisLoad = false;
 
 type ViewportSize = {
   width: number;
@@ -42,6 +43,15 @@ type OnboardingStep = {
   body: string;
 };
 
+const LENS_LABEL: Record<string, string> = {
+  emotional: "Emotional",
+  sensory: "Sensory",
+  action: "Action",
+  relational: "Relational",
+  infrastructure: "Infrastructure",
+  tension: "Tension",
+};
+
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     step: "Step 1 of 3",
@@ -53,7 +63,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     step: "Step 2 of 3",
     title: "Colors show proportions.",
     body:
-      "The more a color dominates, the more that dimension shapes the park's identity.",
+      "The word count within each category dictates the color's prominence, ultimately defining the park's visual identity.",
   },
   {
     step: "Step 3 of 3",
@@ -164,6 +174,14 @@ function persistOnboardingDismissed() {
   onboardingDismissedThisLoad = true;
 }
 
+function readWordCountRevealed(): boolean {
+  return wordCountRevealedThisLoad;
+}
+
+function persistWordCountRevealed() {
+  wordCountRevealedThisLoad = true;
+}
+
 type Beat06MapProps = {
   onCompareClick?: () => void;
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
@@ -187,6 +205,7 @@ export function Beat06Map({
   );
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [onboardingRevealed, setOnboardingRevealed] = useState(false);
+  const [wordCountRevealed, setWordCountRevealed] = useState(readWordCountRevealed);
 
   const handleMarkerPositionsChange = useCallback(
     (positions: Record<string, MarkerScreenPosition>) => {
@@ -245,6 +264,13 @@ export function Beat06Map({
     }
   }, [onboardingDismissed, progress]);
 
+  useEffect(() => {
+    if (onboardingStep >= 1) {
+      persistWordCountRevealed();
+      setWordCountRevealed(true);
+    }
+  }, [onboardingStep]);
+
   const dismissOnboarding = useCallback(() => {
     persistOnboardingDismissed();
     setOnboardingDismissed(true);
@@ -287,6 +313,7 @@ export function Beat06Map({
           onMarkerPositionsChange={handleMarkerPositionsChange}
           progress={progress}
           reducedMotion={reducedMotion}
+          wordCountVisible={wordCountRevealed}
         />
 
         <button
@@ -301,6 +328,22 @@ export function Beat06Map({
           <h1 className="t-display-m">An Aura of Words</h1>
           <p className="t-body-s">Green Spaces of Lugano</p>
         </header>
+
+        <div
+          className={styles.mapLegend}
+          style={fadeStyle(introProgress)}
+          aria-label="Category legend"
+        >
+          {LENSES.map((lens) => (
+            <LensSwatch
+              key={lens}
+              lens={lens}
+              label={LENS_LABEL[lens]}
+              preserveLabelCase
+              size={8}
+            />
+          ))}
+        </div>
 
         {onboardingActive ? (
           <aside

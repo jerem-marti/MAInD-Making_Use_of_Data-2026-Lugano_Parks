@@ -21,7 +21,7 @@
 
 .connector {
   fill: none;
-  stroke-width: 1px;
+  stroke-width: 2.5px;
   stroke-dasharray: 1;
   transition:
     opacity var(--duration) var(--ease),
