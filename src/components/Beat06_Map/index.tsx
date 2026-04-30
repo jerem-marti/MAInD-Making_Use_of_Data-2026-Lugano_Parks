@@ -335,14 +335,14 @@ export function Beat06Map({ onCompareClick, onParkClick }: Beat06MapProps) {
           <defs>
             <marker
               id="beat06-arrowhead"
-              markerHeight="8"
-              markerWidth="8"
+              markerHeight="6"
+              markerWidth="6"
               orient="auto"
-              refX="6"
-              refY="4"
-              viewBox="0 0 8 8"
+              refX="3"
+              refY="3"
+              viewBox="0 0 6 6"
             >
-              <path d="M 0 1 L 7 4 L 0 7 z" />
+              <circle cx="3" cy="3" r="2.5" />
             </marker>
           </defs>
           <path
@@ -377,12 +377,9 @@ export function Beat06Map({ onCompareClick, onParkClick }: Beat06MapProps) {
           />
         </svg>
 
-        <article className={styles.introNote} style={fadeStyle(introProgress)}>
-          <p className="t-body-l">
-            We focused on Lugano's most-reviewed green spaces - five parks, very
-            different in size, attention, and character.
-          </p>
-        </article>
+        <header className={styles.mapHeader} style={fadeStyle(introProgress)}>
+          <h1 className="t-display-m">Perception Park Map</h1>
+        </header>
 
         <aside
           className={`${styles.callout} ${styles.readAnnotation}`}
@@ -406,11 +403,10 @@ export function Beat06Map({ onCompareClick, onParkClick }: Beat06MapProps) {
         >
           <span className={styles.calloutStep}>Step 2 of 3</span>
           <h4 className={`${styles.calloutTitle} t-display-s`}>
-            Attention is uneven.
+            Colors show proportions.
           </h4>
           <p className={`${styles.calloutBody} t-body-s`}>
-            Some parks are loud. Others are quiet. That difference is part of
-            what the map is showing.
+            The more a color dominates, the more that dimension shapes the park's identity.
           </p>
         </aside>
 

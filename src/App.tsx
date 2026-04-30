@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect } from "react";
 import { ScrollSection } from "./components/shared/ScrollSection";
 import { Beat01Opening } from "./components/Beat01_Opening";
 import { Beat02Method } from "./components/Beat02_Method";
-import { Beat03Volume } from "./components/Beat03_Volume";
 import { Beat04Lenses } from "./components/Beat04_Lenses";
 import { Beat05WorkedExample } from "./components/Beat05_WorkedExample";
 import { Beat06Map } from "./components/Beat06_Map";

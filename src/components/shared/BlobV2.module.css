@@ -1,12 +1,21 @@
 .root {
   display: block;
+  position: relative;
+  transform-origin: center;
   background: transparent;
-  line-height: 0;
+  /* No overflow:hidden — the blur must bleed past the boundary into the background */
 }
 
-.canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: transparent;
+.baseGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  opacity: 0.33;
+}
+
+.colorSpot {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  opacity: 0.7;
 }
