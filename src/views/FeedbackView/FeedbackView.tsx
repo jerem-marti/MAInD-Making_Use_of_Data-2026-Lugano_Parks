@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import parksData from "../../data/parks.json";
 import { CATEGORY_TOKENS, CATEGORY_LABELS, type Category } from "../../data/types";
+import { WORD_DICT_EXTENSIONS } from "../../data/wordDictExtensions";
 import { useActII } from "../../state/ActIIContext";
 import "../CompareView/CompareView.css";
 import styles from "./FeedbackView.module.css";
@@ -18,6 +19,10 @@ const WORD_DICT: Map<string, Category> = (() => {
       const key = (node.term as string).toLowerCase();
       if (!map.has(key)) map.set(key, node.category as Category);
     }
+  }
+  // Merge extensions — only fills keys not already present in research data
+  for (const [key, category] of WORD_DICT_EXTENSIONS) {
+    if (!map.has(key)) map.set(key, category);
   }
   return map;
 })();
