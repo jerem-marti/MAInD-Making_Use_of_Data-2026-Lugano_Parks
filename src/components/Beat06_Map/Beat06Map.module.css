@@ -166,6 +166,16 @@
   pointer-events: none;
 }
 
+.blobConnectorPath {
+  transition: opacity 200ms var(--ease, ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blobConnectorPath {
+    transition: none;
+  }
+}
+
 .blobCountTitle {
   position: absolute;
   top: 15%;
@@ -192,6 +202,13 @@
   pointer-events: none;
   transform: translate(-50%, -50%);
   white-space: nowrap;
+  transition: opacity 200ms var(--ease, ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blobCountLabel {
+    transition: none;
+  }
 }
 
 .markerLabelAbove {
@@ -340,7 +357,15 @@
   .mapHeader {
     top: var(--space-4);
     left: var(--space-4);
-    max-width: calc(100% - var(--space-6));
+    max-width: calc(100% - 180px);
+  }
+
+  .mapActions {
+    top: var(--space-4);
+    right: var(--space-4);
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
   }
 
   .onboarding {
