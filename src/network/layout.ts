@@ -50,14 +50,52 @@ export const DEFAULT_FORCE_PARAMS: ForceParams = {
   edgeDistance: 0,
 };
 
-export function computeFontSize(frequency: number, maxFrequency: number): number {
-  if (maxFrequency <= 0) return 12;
-  return 12 + 36 * Math.sqrt(Math.max(0, frequency) / maxFrequency);
+export function computeFontSize(
+  frequency: number,
+  maxFrequency: number,
+  fontRange?: { min: number; max: number },
+): number {
+  const min = fontRange?.min ?? 12;
+  const max = fontRange?.max ?? 48;
+  if (maxFrequency <= 0) return min;
+  return min + (max - min) * Math.sqrt(Math.max(0, frequency) / maxFrequency);
 }
 
 export function computeRadius(term: string, fontSize: number): number {
   const width = term.length * fontSize * 0.6;
   return Math.max(width, fontSize) / 2 + 6;
+}
+
+/**
+ * Pick a font-size range based on viewport size and label density so words
+ * stay legible without overlapping on mobile / desktop / TV.
+ */
+export function computeFontRange(
+  width: number,
+  height: number,
+  nodeCount: number,
+  termLengths: number[],
+): { min: number; max: number } {
+  const vmin = Math.min(width, height);
+  const baseMin = Math.max(9, Math.min(14, vmin / 40));
+  const baseMax = Math.max(22, Math.min(64, vmin / 8));
+
+  const meanTermLength =
+    termLengths.length > 0
+      ? termLengths.reduce((sum, length) => sum + length, 0) / termLengths.length
+      : 8;
+  const canvasArea = Math.max(1, width * height);
+  const estimatedLabelArea =
+    nodeCount * Math.pow((baseMin + baseMax) / 2, 2) * meanTermLength * 0.6;
+  const densityScale = Math.max(
+    0.55,
+    Math.min(1.5, Math.sqrt(canvasArea / Math.max(1, estimatedLabelArea * 2.4))),
+  );
+
+  return {
+    min: Math.max(8, baseMin * densityScale),
+    max: Math.max(baseMin * densityScale + 4, baseMax * densityScale),
+  };
 }
 
 export type LayoutResult = {
@@ -76,8 +114,15 @@ export function runLayout(
     return Math.max(max, node.frequency);
   }, 1);
 
+  const fontRange = computeFontRange(
+    width,
+    height,
+    nodes.length,
+    nodes.map((node) => node.term.length),
+  );
+
   const simNodes: SimNode[] = nodes.map((node) => {
-    const fontSize = computeFontSize(node.frequency, maxFrequency);
+    const fontSize = computeFontSize(node.frequency, maxFrequency, fontRange);
     const centroid = CATEGORY_CENTROIDS[node.category];
     const seed = hashTerm(node.term);
     const jitter = 30;
