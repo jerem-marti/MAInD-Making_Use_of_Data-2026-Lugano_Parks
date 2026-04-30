@@ -15,6 +15,7 @@ export type ActIIState = {
   actIIView: ActIIView;
   selectedParkId: string | null;
   compareOpen: boolean;
+  feedbackOpen: boolean;
 };
 
 type ActIIActions = {
@@ -23,6 +24,8 @@ type ActIIActions = {
   cyclePark(direction: CycleDirection): void;
   openCompare(): void;
   closeCompare(): void;
+  openFeedback(): void;
+  closeFeedback(): void;
   restart(): void;
 };
 
@@ -38,12 +41,15 @@ type ReducerAction =
   | { type: "cyclePark"; direction: CycleDirection }
   | { type: "openCompare" }
   | { type: "closeCompare" }
+  | { type: "openFeedback" }
+  | { type: "closeFeedback" }
   | { type: "restart" };
 
 const INITIAL_STATE: ActIIState = {
   actIIView: "map",
   selectedParkId: null,
   compareOpen: false,
+  feedbackOpen: false,
 };
 
 const PARK_ORDER = [...parksData.parks]
@@ -98,6 +104,16 @@ function actIIReducer(state: ActIIState, action: ReducerAction): ActIIState {
       return {
         ...state,
         compareOpen: false,
+      };
+    case "openFeedback":
+      return {
+        ...state,
+        feedbackOpen: true,
+      };
+    case "closeFeedback":
+      return {
+        ...state,
+        feedbackOpen: false,
       };
     case "restart":
       return INITIAL_STATE;
@@ -155,6 +171,14 @@ export function ActIIProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "closeCompare" });
   }, []);
 
+  const openFeedback = useCallback(() => {
+    dispatch({ type: "openFeedback" });
+  }, []);
+
+  const closeFeedback = useCallback(() => {
+    dispatch({ type: "closeFeedback" });
+  }, []);
+
   const restart = useCallback(() => {
     dispatch({ type: "restart" });
     scrollToTop();
@@ -169,11 +193,13 @@ export function ActIIProvider({ children }: { children: ReactNode }) {
         cyclePark,
         openCompare,
         closeCompare,
+        openFeedback,
+        closeFeedback,
         restart,
       },
       parkOrder: PARK_ORDER,
     }),
-    [backToMap, closeCompare, cyclePark, enterPark, openCompare, restart, state],
+    [backToMap, closeCompare, closeFeedback, cyclePark, enterPark, openCompare, openFeedback, restart, state],
   );
 
   return <ActIIContext.Provider value={value}>{children}</ActIIContext.Provider>;
