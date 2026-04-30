@@ -246,10 +246,12 @@
   visibility: visible;
 }
 
-.mapHeader,
-.callout {
+.mapHeader {
   position: absolute;
   z-index: 40;
+  top: var(--space-5);
+  left: var(--space-5);
+  max-width: min(320px, calc(100% - 240px));
   margin: 0;
   pointer-events: none;
   transition:
@@ -257,18 +259,47 @@
     transform var(--duration) var(--ease);
 }
 
-.mapHeader {
-  top: clamp(var(--space-5), 8vh, var(--space-8));
-  left: clamp(var(--space-5), 7vw, var(--space-8));
-}
-
 .mapHeader h1 {
   margin: 0;
   color: var(--color-text-primary);
 }
 
-.calloutStep {
+.mapHeader p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.onboarding {
+  position: absolute;
+  z-index: 60;
+  bottom: var(--space-5);
+  left: 50%;
+  width: min(380px, calc(100% - var(--space-8)));
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border: 0.5px solid var(--color-text-primary);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  box-shadow: 0 8px 24px rgba(26, 26, 26, 0.12);
+  pointer-events: auto;
+  transform: translateX(-50%);
+  animation: onboarding-in 320ms var(--ease) both;
+}
+
+@keyframes onboarding-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.onboardingStep {
   display: inline-block;
+  margin-bottom: var(--space-2);
   padding: 2px 8px;
   border: 0.5px solid var(--color-border-medium);
   border-radius: var(--radius-pill);
@@ -281,69 +312,65 @@
   white-space: nowrap;
 }
 
-.callout {
-  width: 260px;
-  padding: var(--space-4) var(--space-5);
-  border: 0.5px solid var(--color-text-primary);
-  border-radius: var(--radius-lg);
-}
-
-.calloutTitle {
+.onboardingTitle {
   margin: 0 0 var(--space-2);
   color: var(--color-text-primary);
 }
 
-.calloutBody {
-  margin: 0;
+.onboardingBody {
+  margin: 0 0 var(--space-3);
   color: var(--color-text-secondary);
 }
 
-.calloutStep {
-  margin-bottom: var(--space-2);
+.onboardingDots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-3);
 }
 
-.readAnnotation {
-  top: 17vh;
-  right: clamp(var(--space-5), 8vw, var(--space-9));
+.onboardingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border-medium);
+  transition: background var(--duration-fast) var(--ease);
 }
 
-.imbalanceAnnotation {
-  bottom: 17vh;
-  left: clamp(var(--space-5), 8vw, var(--space-8));
+.onboardingDotActive {
+  background: var(--color-text-primary);
 }
 
-.clickAnnotation {
-  right: clamp(var(--space-5), 8vw, var(--space-9));
-  bottom: 10vh;
+.onboardingActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.annotationArrows {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
+.onboardingNav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.annotationArrows path {
-  fill: none;
-  stroke: var(--color-text-primary);
-  stroke-dasharray: 0;
-  stroke-linecap: round;
-  stroke-width: 0.5;
-  marker-end: url(#beat06-arrowhead);
-  transition: opacity var(--duration) var(--ease);
+.onboardingSkip,
+.onboardingBack {
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
 }
 
-.annotationArrows marker {
-  fill: var(--color-text-primary);
+.onboardingSkip:hover,
+.onboardingBack:hover {
+  color: var(--color-text-primary);
 }
 
-.annotationArrows marker circle {
-  fill: var(--color-text-primary);
-  stroke: none;
+.onboardingNext {
+  min-width: 88px;
 }
 
 @media (max-width: 720px) {
@@ -357,35 +384,16 @@
       );
   }
 
-  .annotationArrows {
-    display: none;
-  }
-
-  .introNote,
-  .callout {
-    left: var(--space-4);
-    width: min(320px, calc(100% - var(--space-6)));
-    padding: var(--space-3);
-  }
-
-  .introNote {
+  .mapHeader {
     top: var(--space-4);
+    left: var(--space-4);
+    max-width: calc(100% - var(--space-6));
   }
 
-  .readAnnotation {
-    top: auto;
-    right: auto;
-    bottom: 248px;
-  }
-
-  .imbalanceAnnotation {
-    top: auto;
-    bottom: 124px;
-  }
-
-  .clickAnnotation {
-    right: auto;
+  .onboarding {
     bottom: var(--space-4);
+    width: calc(100% - var(--space-6));
+    padding: var(--space-3) var(--space-4);
   }
 
   .markerLabel {

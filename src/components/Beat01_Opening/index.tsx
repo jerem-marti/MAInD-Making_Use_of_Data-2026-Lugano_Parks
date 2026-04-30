@@ -130,13 +130,13 @@ export function Beat01Opening() {
             transform: `translateY(${titleOffset.toFixed(1)}px)`,
           }}
         >
-          Felt Here
+          Aura of Words
         </h1>
         <p
           className={styles.subtitle}
           style={{ opacity: subtitleVisible ? 1 : 0 }}
         >
-          From Opinions to Spatial Aura
+          Green Spaces of Lugano
         </p>
       </div>
 

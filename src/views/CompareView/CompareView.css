@@ -408,3 +408,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 560px) {
+  .vc-stage {
+    padding: 16px;
+  }
+
+  .vc-modal.gen {
+    width: calc(100vw - 32px);
+    padding: 24px 18px;
+  }
+
+  .stations {
+    grid-template-columns: 1fr;
+  }
+}

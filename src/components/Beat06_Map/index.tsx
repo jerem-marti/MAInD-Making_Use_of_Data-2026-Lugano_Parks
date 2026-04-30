@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -21,6 +20,11 @@ import styles from "./Beat06Map.module.css";
 
 const MAX_DIAMETER = 180;
 const MIN_DIAMETER = 32;
+const ONBOARDING_REVEAL_THRESHOLD = 0.7;
+
+// Module-level so the dismissal survives Beat06Map remounts within a single
+// page load (e.g. round-trips through ParkView), but resets on reload.
+let onboardingDismissedThisLoad = false;
 
 type ViewportSize = {
   width: number;
@@ -32,16 +36,31 @@ type MapFrameStyle = CSSProperties & {
   "--map-scrim-opacity": string;
 };
 
-type Point = {
-  x: number;
-  y: number;
+type OnboardingStep = {
+  step: string;
+  title: string;
+  body: string;
 };
 
-type CalloutAnchors = {
-  read?: Point;
-  imbalance?: Point;
-  click?: Point;
-};
+const ONBOARDING_STEPS: OnboardingStep[] = [
+  {
+    step: "Step 1 of 3",
+    title: "Each blob is a park.",
+    body:
+      "Bigger means more reviewed words. Colours show what kind of language the reviews contain.",
+  },
+  {
+    step: "Step 2 of 3",
+    title: "Colors show proportions.",
+    body:
+      "The more a color dominates, the more that dimension shapes the park's identity.",
+  },
+  {
+    step: "Step 3 of 3",
+    title: "Click any park.",
+    body: "Step inside its words and see what people actually wrote.",
+  },
+];
 
 function clamp(value: number, min = 0, max = 1): number {
   return Math.min(max, Math.max(min, value));
@@ -77,39 +96,6 @@ function fadeStyle(value: number, distance = 16): CSSProperties {
     opacity: value,
     transform: `translateY(${distance * (1 - value)}px)`,
   };
-}
-
-function arrowStyle(value: number): CSSProperties {
-  return {
-    opacity: value,
-  };
-}
-
-function markerPoint(
-  positions: Record<string, MarkerScreenPosition>,
-  id: string,
-  fallback: Point,
-): Point {
-  const position = positions[id];
-  if (!position) return fallback;
-
-  return {
-    x: position.x,
-    y: position.y,
-  };
-}
-
-function curvedPath(from: Point, to: Point): string {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const control = {
-    x: from.x + dx * 0.58 - dy * 0.12,
-    y: from.y + dy * 0.52 + dx * 0.08,
-  };
-
-  return `M ${from.x.toFixed(1)} ${from.y.toFixed(1)} Q ${control.x.toFixed(
-    1,
-  )} ${control.y.toFixed(1)} ${to.x.toFixed(1)} ${to.y.toFixed(1)}`;
 }
 
 function useViewportSize(): ViewportSize {
@@ -170,6 +156,14 @@ function toBlobWeights(categoryWeights: Record<string, number>): BlobV2Weights {
   return weights;
 }
 
+function readOnboardingDismissed(): boolean {
+  return onboardingDismissedThisLoad;
+}
+
+function persistOnboardingDismissed() {
+  onboardingDismissedThisLoad = true;
+}
+
 type Beat06MapProps = {
   onCompareClick?: () => void;
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
@@ -187,17 +181,15 @@ export function Beat06Map({
   const reducedMotion = useReducedMotion();
   const viewport = useViewportSize();
   const mapFrameRef = useRef<HTMLDivElement | null>(null);
-  const readCalloutRef = useRef<HTMLElement | null>(null);
-  const imbalanceCalloutRef = useRef<HTMLElement | null>(null);
-  const clickCalloutRef = useRef<HTMLElement | null>(null);
-  const [markerPositions, setMarkerPositions] = useState<
-    Record<string, MarkerScreenPosition>
-  >({});
-  const [calloutAnchors, setCalloutAnchors] = useState<CalloutAnchors>({});
+
+  const [onboardingDismissed, setOnboardingDismissed] = useState(
+    readOnboardingDismissed,
+  );
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingRevealed, setOnboardingRevealed] = useState(false);
 
   const handleMarkerPositionsChange = useCallback(
     (positions: Record<string, MarkerScreenPosition>) => {
-      setMarkerPositions(positions);
       const frameRect = mapFrameRef.current?.getBoundingClientRect();
       const viewportPositions = frameRect
         ? Object.fromEntries(
@@ -216,56 +208,6 @@ export function Beat06Map({
     },
     [onMarkerPositionsChange],
   );
-
-  const measureCalloutAnchors = useCallback(() => {
-    const frame = mapFrameRef.current;
-    if (!frame) return;
-
-    const frameRect = frame.getBoundingClientRect();
-    const pointFromElement = (
-      element: HTMLElement | null,
-      side: "left" | "right" | "top",
-    ): Point | undefined => {
-      if (!element) return undefined;
-      const rect = element.getBoundingClientRect();
-
-      if (side === "top") {
-        return {
-          x: rect.left - frameRect.left + rect.width * 0.5,
-          y: rect.top - frameRect.top,
-        };
-      }
-
-      return {
-        x:
-          side === "left"
-            ? rect.left - frameRect.left
-            : rect.right - frameRect.left,
-        y: rect.top - frameRect.top + rect.height * 0.5,
-      };
-    };
-
-    const next = {
-      read: pointFromElement(readCalloutRef.current, "left"),
-      imbalance: pointFromElement(imbalanceCalloutRef.current, "top"),
-      click: pointFromElement(clickCalloutRef.current, "left"),
-    };
-
-    setCalloutAnchors((previous) => {
-      const samePoint = (a?: Point, b?: Point) =>
-        (!a && !b) ||
-        (Boolean(a) &&
-          Boolean(b) &&
-          Math.abs((a?.x ?? 0) - (b?.x ?? 0)) < 0.5 &&
-          Math.abs((a?.y ?? 0) - (b?.y ?? 0)) < 0.5);
-
-      return samePoint(previous.read, next.read) &&
-        samePoint(previous.imbalance, next.imbalance) &&
-        samePoint(previous.click, next.click)
-        ? previous
-        : next;
-    });
-  }, []);
 
   const markers = useMemo(() => {
     const features = getParkMapFeatures();
@@ -291,38 +233,39 @@ export function Beat06Map({
   const expandProgress = fadeProgress(progress, 0.14, 0.34, reducedMotion);
   const introProgress = fadeProgress(progress, 0.38, 0.48, reducedMotion);
   const labelsProgress = fadeProgress(progress, 0.7, 0.8, reducedMotion);
-  const readProgress = fadeProgress(progress, 0.68, 0.78, reducedMotion);
-  const imbalanceProgress = fadeProgress(progress, 0.76, 0.86, reducedMotion);
-  const clickProgress = fadeProgress(progress, 0.86, 0.96, reducedMotion);
-  const textProgress = Math.max(
-    introProgress,
-    readProgress,
-    imbalanceProgress,
-    clickProgress,
-  );
-  const paradisoPoint = markerPoint(markerPositions, "paradiso", {
-    x: viewport.width * 0.56,
-    y: viewport.height * 0.66,
-  });
-  const sanMichelePoint = markerPoint(markerPositions, "san-michele", {
-    x: viewport.width * 0.68,
-    y: viewport.height * 0.42,
-  });
-  const tassinoPoint = markerPoint(markerPositions, "tassino", {
-    x: viewport.width * 0.36,
-    y: viewport.height * 0.58,
-  });
+  const textProgress = introProgress;
 
-  useLayoutEffect(() => {
-    measureCalloutAnchors();
-  }, [
-    clickProgress,
-    expandProgress,
-    imbalanceProgress,
-    measureCalloutAnchors,
-    readProgress,
-    viewport,
-  ]);
+  const onboardingActive =
+    !onboardingDismissed &&
+    (onboardingRevealed || progress >= ONBOARDING_REVEAL_THRESHOLD);
+
+  useEffect(() => {
+    if (!onboardingDismissed && progress >= ONBOARDING_REVEAL_THRESHOLD) {
+      setOnboardingRevealed(true);
+    }
+  }, [onboardingDismissed, progress]);
+
+  const dismissOnboarding = useCallback(() => {
+    persistOnboardingDismissed();
+    setOnboardingDismissed(true);
+  }, []);
+
+  const handleOnboardingNext = useCallback(() => {
+    setOnboardingStep((current) => {
+      if (current >= ONBOARDING_STEPS.length - 1) {
+        dismissOnboarding();
+        return current;
+      }
+      return current + 1;
+    });
+  }, [dismissOnboarding]);
+
+  const handleOnboardingBack = useCallback(() => {
+    setOnboardingStep((current) => Math.max(0, current - 1));
+  }, []);
+
+  const currentOnboardingStep = ONBOARDING_STEPS[onboardingStep];
+  const isLastOnboardingStep = onboardingStep === ONBOARDING_STEPS.length - 1;
 
   return (
     <div className={styles.stage}>
@@ -354,98 +297,69 @@ export function Beat06Map({
           Compare all five
         </button>
 
-        <svg className={styles.annotationArrows} aria-hidden="true">
-          <defs>
-            <marker
-              id="beat06-arrowhead"
-              markerHeight="6"
-              markerWidth="6"
-              orient="auto"
-              refX="3"
-              refY="3"
-              viewBox="0 0 6 6"
-            >
-              <circle cx="3" cy="3" r="2.5" />
-            </marker>
-          </defs>
-          <path
-            d={curvedPath(
-              calloutAnchors.read ?? {
-                x: viewport.width * 0.72,
-                y: viewport.height * 0.27,
-              },
-              sanMichelePoint,
-            )}
-            style={arrowStyle(readProgress)}
-          />
-          <path
-            d={curvedPath(
-              calloutAnchors.imbalance ?? {
-                x: viewport.width * 0.25,
-                y: viewport.height * 0.72,
-              },
-              tassinoPoint,
-            )}
-            style={arrowStyle(imbalanceProgress)}
-          />
-          <path
-            d={curvedPath(
-              calloutAnchors.click ?? {
-                x: viewport.width * 0.72,
-                y: viewport.height * 0.78,
-              },
-              paradisoPoint,
-            )}
-            style={arrowStyle(clickProgress)}
-          />
-        </svg>
-
         <header className={styles.mapHeader} style={fadeStyle(introProgress)}>
-          <h1 className="t-display-m">Perception Park Map</h1>
+          <h1 className="t-display-m">An Aura of Words</h1>
+          <p className="t-body-s">Green Spaces of Lugano</p>
         </header>
 
-        <aside
-          className={`${styles.callout} ${styles.readAnnotation}`}
-          ref={readCalloutRef}
-          style={fadeStyle(readProgress, 10)}
-        >
-          <span className={styles.calloutStep}>Step 1 of 3</span>
-          <h4 className={`${styles.calloutTitle} t-display-s`}>
-            Each blob is a park.
-          </h4>
-          <p className={`${styles.calloutBody} t-body-s`}>
-            Bigger means more reviewed words. Colours show what kind of language
-            the reviews contain.
-          </p>
-        </aside>
-
-        <aside
-          className={`${styles.callout} ${styles.imbalanceAnnotation}`}
-          ref={imbalanceCalloutRef}
-          style={fadeStyle(imbalanceProgress, 10)}
-        >
-          <span className={styles.calloutStep}>Step 2 of 3</span>
-          <h4 className={`${styles.calloutTitle} t-display-s`}>
-            Colors show proportions.
-          </h4>
-          <p className={`${styles.calloutBody} t-body-s`}>
-            The more a color dominates, the more that dimension shapes the park's identity.
-          </p>
-        </aside>
-
-        <aside
-          className={`${styles.callout} ${styles.clickAnnotation}`}
-          ref={clickCalloutRef}
-          style={fadeStyle(clickProgress, 10)}
-        >
-          <span className={styles.calloutStep}>Step 3 of 3</span>
-          <h4 className={`${styles.calloutTitle} t-display-s`}>
-            Click any park.
-          </h4>
-          <p className={`${styles.calloutBody} t-body-s`}>
-            Step inside its words and see what people actually wrote.
-          </p>
-        </aside>
+        {onboardingActive ? (
+          <aside
+            aria-live="polite"
+            className={styles.onboarding}
+            role="dialog"
+            aria-labelledby="beat06-onboarding-title"
+          >
+            <span className={styles.onboardingStep}>
+              {currentOnboardingStep.step}
+            </span>
+            <h4
+              className={`${styles.onboardingTitle} t-display-s`}
+              id="beat06-onboarding-title"
+            >
+              {currentOnboardingStep.title}
+            </h4>
+            <p className={`${styles.onboardingBody} t-body-s`}>
+              {currentOnboardingStep.body}
+            </p>
+            <div className={styles.onboardingDots} aria-hidden="true">
+              {ONBOARDING_STEPS.map((_, index) => (
+                <span
+                  className={`${styles.onboardingDot} ${
+                    index === onboardingStep ? styles.onboardingDotActive : ""
+                  }`}
+                  key={index}
+                />
+              ))}
+            </div>
+            <div className={styles.onboardingActions}>
+              <button
+                className={styles.onboardingSkip}
+                onClick={dismissOnboarding}
+                type="button"
+              >
+                Skip
+              </button>
+              <div className={styles.onboardingNav}>
+                {onboardingStep > 0 ? (
+                  <button
+                    className={styles.onboardingBack}
+                    onClick={handleOnboardingBack}
+                    type="button"
+                  >
+                    Back
+                  </button>
+                ) : null}
+                <button
+                  className={`${styles.onboardingNext} btn-primary`}
+                  onClick={handleOnboardingNext}
+                  type="button"
+                >
+                  {isLastOnboardingStep ? "Got it" : "Next"}
+                </button>
+              </div>
+            </div>
+          </aside>
+        ) : null}
       </div>
     </div>
   );
