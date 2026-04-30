@@ -6,6 +6,7 @@
   flex: 1;
   flex-direction: column;
   background: var(--color-bg);
+  animation: network-words-in 300ms var(--ease) both;
 }
 
 .frame {
@@ -54,6 +55,7 @@
   font-weight: 400;
   pointer-events: all;
   text-transform: lowercase;
+  animation: network-node-in 360ms var(--ease) both;
   transition:
     fill 250ms ease,
     opacity 250ms ease;
@@ -151,6 +153,7 @@
   padding: var(--space-3) var(--space-7);
   border-top: 0.5px solid var(--color-border-light);
   background: var(--color-bg);
+  animation: network-legend-in 300ms var(--ease) 160ms both;
 }
 
 .legendItems {
@@ -212,6 +215,7 @@
   color: var(--color-text-secondary);
   font-size: 12px;
   line-height: 1.25;
+  animation: legend-count-pulse 240ms var(--ease) both;
 }
 
 .resetLink {
@@ -225,6 +229,57 @@
   display: grid;
   place-items: center;
   color: var(--color-text-tertiary);
+}
+
+@keyframes network-words-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes network-node-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes network-legend-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes legend-count-pulse {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .network,
+  .node,
+  .legend,
+  .legendCount {
+    animation: none !important;
+  }
 }
 
 @media (max-width: 820px) {

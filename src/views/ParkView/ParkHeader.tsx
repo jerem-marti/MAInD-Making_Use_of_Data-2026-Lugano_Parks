@@ -6,6 +6,7 @@ import {
   LENSES,
 } from "../../components/shared/LensSwatch";
 import { useActII } from "../../state/ActIIContext";
+import type { ParkViewTransition } from "./ParkView";
 import styles from "./ParkHeader.module.css";
 
 function toBlobWeights(categoryWeights: Record<string, number>): BlobWeights {
@@ -26,7 +27,13 @@ function formatCount(value: number): string {
   return value.toLocaleString("en-US");
 }
 
-export function ParkHeader() {
+export function ParkHeader({
+  onBackToMap,
+  transition = "steady",
+}: {
+  onBackToMap?: () => void;
+  transition?: ParkViewTransition;
+}) {
   const {
     state: { selectedParkId },
     actions: { backToMap, cyclePark, openCompare },
@@ -43,14 +50,17 @@ export function ParkHeader() {
   );
 
   return (
-    <header className={`${styles.header} ${styles.variantA}`}>
+    <header
+      className={`${styles.header} ${styles.variantA}`}
+      data-transition={transition}
+    >
       <div className="row1">
         <a
           className="link-inline"
           href="#beat-06"
           onClick={(event) => {
             event.preventDefault();
-            backToMap();
+            (onBackToMap ?? backToMap)();
           }}
         >
           ← Back to map
@@ -61,6 +71,7 @@ export function ParkHeader() {
             breathing={false}
             className={styles.aura}
             colorOrder="ascending"
+            key={park.id}
             seed={position * 17 + 5}
             size={40}
             weights={weights}
@@ -80,7 +91,10 @@ export function ParkHeader() {
           >
             ‹
           </button>
-          <div className="identity-meta">
+          <div
+            className={`identity-meta ${styles.identityMetaAnimated}`}
+            key={park.id}
+          >
             <h1 className="t-display-m park-name">{park.name}</h1>
             <div className="t-body-s">
               <span className={styles.statValue}>

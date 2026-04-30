@@ -333,7 +333,7 @@ export function WordNetwork() {
   return (
     <div className={styles.network}>
       <div className={styles.frame}>
-        <div className={styles.plot} ref={ref}>
+        <div className={styles.plot} data-word-network-plot ref={ref}>
           {size.width > 0 && size.height > 0 ? (
             <svg
               aria-label={`Word network for ${park.name}`}

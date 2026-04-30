@@ -25,6 +25,13 @@ export type MarkerScreenPosition = {
   diameter: number;
 };
 
+export type MarkerTransitionSource = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
 type MarkerStyle = CSSProperties & {
   "--label-offset": string;
   "--marker-size": string;
@@ -38,7 +45,7 @@ type MapLibreMapProps = {
   expandProgress: number;
   labelsProgress: number;
   reducedMotion: boolean;
-  onParkClick?: (parkId: string) => void;
+  onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
   onMarkerPositionsChange?: (
     positions: Record<string, MarkerScreenPosition>,
   ) => void;
@@ -163,7 +170,7 @@ function ParkMarkerView({
   progress: number;
   labelsProgress: number;
   reducedMotion: boolean;
-  onParkClick?: (parkId: string) => void;
+  onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
 }) {
   const markerProgress = bloomProgress(progress, marker.order, reducedMotion);
   const wordCount = marker.totalWords.toLocaleString("en-US");
@@ -176,8 +183,14 @@ function ParkMarkerView({
     <button
       aria-label={`${marker.name}, ${wordCount} reviewed words, strongest lenses: ${strongestLensSummary}`}
       className={styles.markerButton}
-      onClick={() => {
-        onParkClick?.(marker.id);
+      onClick={(event) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        onParkClick?.(marker.id, {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        });
       }}
       style={markerStyle(marker, markerProgress, labelsProgress)}
       tabIndex={markerProgress > 0.5 ? 0 : -1}

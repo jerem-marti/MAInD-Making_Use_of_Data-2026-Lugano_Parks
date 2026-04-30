@@ -7,6 +7,15 @@
   background: var(--color-bg);
 }
 
+.header[data-transition="enter"] {
+  animation: park-header-in 300ms var(--ease) 160ms both;
+}
+
+.header[data-transition="cycle"] .identityMetaAnimated,
+.header[data-transition="cycle"] .aura {
+  animation: park-header-crossfade 300ms var(--ease) both;
+}
+
 .variantA {
   padding-top: var(--space-5);
   padding-bottom: var(--space-5);
@@ -83,4 +92,36 @@
 
 .aura {
   flex: 0 0 auto;
+}
+
+@keyframes park-header-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes park-header-crossfade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .identityMetaAnimated,
+  .aura {
+    animation: none !important;
+  }
 }

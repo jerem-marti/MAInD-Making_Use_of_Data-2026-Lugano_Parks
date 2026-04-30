@@ -9,6 +9,11 @@
   overscroll-behavior: contain;
 }
 
+.vc-stage.is-closing {
+  animation: vc-fade-out 220ms var(--ease) both;
+  pointer-events: none;
+}
+
 .vc-stage,
 .vc-stage * {
   box-sizing: border-box;
@@ -18,9 +23,14 @@
   position: fixed;
   inset: 0;
   background: transparent;
+  animation: vc-ghost-in 200ms var(--ease) both;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   pointer-events: none;
+}
+
+.vc-stage.is-closing .map-ghost {
+  animation: vc-ghost-out 200ms var(--ease) both;
 }
 
 .vc-stage .map-ghost::after {
@@ -34,10 +44,16 @@
   position: relative;
   z-index: 1;
   margin: 0 auto;
+  animation: vc-modal-in 250ms var(--ease) 50ms both;
   background: var(--color-bg);
   border: 0.5px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(26, 26, 26, 0.04);
+  transform-origin: center center;
+}
+
+.vc-stage.is-closing .vc-modal {
+  animation: vc-modal-out 200ms var(--ease) both;
 }
 
 .vc-modal.gen {
@@ -222,6 +238,68 @@
   }
 }
 
+@keyframes vc-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vc-ghost-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes vc-ghost-out {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+}
+
+@keyframes vc-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vc-modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
 @media (max-width: 1320px) {
   .vc-stage {
     padding: 24px;
@@ -311,6 +389,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vc-stage,
+  .vc-stage.is-closing,
+  .vc-stage .map-ghost,
+  .vc-stage.is-closing .map-ghost,
+  .vc-modal,
+  .vc-stage.is-closing .vc-modal,
   .station,
   .vc-aura,
   .station-meta,

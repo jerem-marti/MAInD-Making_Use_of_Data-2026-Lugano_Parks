@@ -3,6 +3,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
@@ -23,6 +24,7 @@ import {
   type BlobWeights,
 } from "../../components/shared/Blob";
 import { useActII } from "../../state/ActIIContext";
+import type { ChoreographyRect } from "../../transitions/ActIIChoreography";
 import "./CompareView.css";
 
 type TopTerm = {
@@ -115,7 +117,15 @@ function isActivationKey(event: KeyboardEvent): boolean {
   return event.key === "Enter" || event.key === " ";
 }
 
-export function CompareView() {
+function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+export function CompareView({
+  onEnterPark,
+}: {
+  onEnterPark?: (parkId: string, source?: ChoreographyRect) => void;
+}) {
   const {
     actions: { closeCompare, enterPark },
   } = useActII();
@@ -123,21 +133,43 @@ export function CompareView() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const shouldReturnFocusRef = useRef(true);
+  const exitTimerRef = useRef<number | null>(null);
+  const [closing, setClosing] = useState(false);
   const parks = useMemo(getParks, []);
   const maxWords = parks[0]?.totalWords ?? 1;
 
+  const scheduleExit = useCallback((afterExit: () => void) => {
+    if (exitTimerRef.current !== null) return;
+    if (prefersReducedMotion()) {
+      afterExit();
+      return;
+    }
+
+    setClosing(true);
+    exitTimerRef.current = window.setTimeout(() => {
+      exitTimerRef.current = null;
+      afterExit();
+    }, 220);
+  }, []);
+
   const close = useCallback(() => {
     shouldReturnFocusRef.current = true;
-    closeCompare();
-  }, [closeCompare]);
+    scheduleExit(closeCompare);
+  }, [closeCompare, scheduleExit]);
 
   const enterComparedPark = useCallback(
-    (parkId: string) => {
+    (parkId: string, source?: ChoreographyRect) => {
       shouldReturnFocusRef.current = false;
-      closeCompare();
-      enterPark(parkId);
+      scheduleExit(() => {
+        closeCompare();
+        if (onEnterPark) {
+          onEnterPark(parkId, source);
+        } else {
+          enterPark(parkId);
+        }
+      });
     },
-    [closeCompare, enterPark],
+    [closeCompare, enterPark, onEnterPark, scheduleExit],
   );
 
   useEffect(() => {
@@ -153,6 +185,9 @@ export function CompareView() {
     });
 
     return () => {
+      if (exitTimerRef.current !== null) {
+        window.clearTimeout(exitTimerRef.current);
+      }
       document.body.style.overflow = previousBodyOverflow;
       if (!shouldReturnFocusRef.current) return;
       returnFocusRef.current?.focus({ preventScroll: true });
@@ -198,7 +233,7 @@ export function CompareView() {
   }, [close]);
 
   return (
-    <div className="vc-stage">
+    <div className={`vc-stage ${closing ? "is-closing" : ""}`}>
       <div className="map-ghost" aria-hidden="true" />
       <div
         aria-describedby="compare-subtitle"
@@ -251,12 +286,28 @@ function Station({
   seed,
 }: {
   barWidth: number;
-  onEnterPark: (parkId: string) => void;
+  onEnterPark: (parkId: string, source?: ChoreographyRect) => void;
   park: ComparePark;
   seed: number;
 }) {
   const dominant = dominantCategory(park.categoryWeights);
   const words = topWords(park);
+  const auraRef = useRef<HTMLDivElement | null>(null);
+
+  const handleEnter = () => {
+    const rect = auraRef.current?.getBoundingClientRect();
+    onEnterPark(
+      park.id,
+      rect
+        ? {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          }
+        : undefined,
+    );
+  };
 
   const style = {
     "--dominant-color": lensColour(dominant),
@@ -267,11 +318,11 @@ function Station({
     <div
       aria-label={`Open ${park.name}`}
       className="station"
-      onClick={() => onEnterPark(park.id)}
+      onClick={handleEnter}
       onKeyDown={(event) => {
         if (!isActivationKey(event)) return;
         event.preventDefault();
-        onEnterPark(park.id);
+        handleEnter();
       }}
       role="button"
       style={style}
@@ -284,7 +335,7 @@ function Station({
         </div>
       </div>
 
-      <div className="vc-aura" aria-label={`${park.name} aura`}>
+      <div className="vc-aura" aria-label={`${park.name} aura`} ref={auraRef}>
         <Blob
           ariaLabel={`${park.name} aura`}
           breathing
