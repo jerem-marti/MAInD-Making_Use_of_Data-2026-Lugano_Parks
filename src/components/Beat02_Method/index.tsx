@@ -32,12 +32,11 @@ export function Beat02Method() {
             transform: `translateY(${20 * (1 - paragraphProgress[0])}px)`,
           }}
         >
-          We collected the Google reviews of five public green spaces in Lugano:
+          An Aura of Word begins with Google Reviews from Lugano’s five most-reviewed public green spaces: 
           <strong> Parco Ciani</strong>, <strong>Parco Tassino</strong>,{" "}
           <strong>Parco San Michele</strong>,{" "}
           <strong>Parco Panoramico Paradiso</strong>, and{" "}
-          <strong>Parco Lambertenghi</strong>. Together, these are the
-          most-reviewed green spaces in the city.
+          <strong>Parco Lambertenghi</strong>.
         </p>
         <p
           style={{
@@ -45,9 +44,7 @@ export function Beat02Method() {
             transform: `translateY(${20 * (1 - paragraphProgress[1])}px)`,
           }}
         >
-          Reviews were originally written in many languages. We translated them
-          all into English to read them together. Translation always loses
-          something, and we know it.
+          A Google Review is not a survey. It is what someone chose to write after being there: to praise, to complain, to remember a view, a walk, a bench, a feeling. Most people do not write at all. So this is not a portrait of Lugano’s parks as they are, but of what gets written down about them.
         </p>
         <p
           style={{
@@ -55,12 +52,7 @@ export function Beat02Method() {
             transform: `translateY(${20 * (1 - paragraphProgress[2])}px)`,
           }}
         >
-          A Google review is not a survey. It is what someone chose to write,
-          on their phone, after a visit. Some people write to praise. Some to
-          complain. Most people don't write at all. So this is not a portrait
-          of Lugano's parks. It is a portrait of{" "}
-          <em>what gets written down about them</em> — which is something
-          different, and worth looking at on its own terms.
+          Through six semantic lenses, these written traces become weighted fields of colour and form. Each aura looks beneath the rating to show how a park is sensed, used, remembered, criticised, and valued — not as a final truth, but as a felt portrait open to recognition and debate.
         </p>
       </div>
     </div>
