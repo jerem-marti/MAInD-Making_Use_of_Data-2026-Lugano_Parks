@@ -14,6 +14,7 @@ import type { BlobV2Weights } from "../shared/BlobV2";
 import {
   MapLibreMap,
   type MarkerScreenPosition,
+  type MarkerTransitionSource,
 } from "./MapLibreMap";
 import { getParkMapFeatures } from "./parkMapData";
 import styles from "./Beat06Map.module.css";
@@ -169,7 +170,19 @@ function toBlobWeights(categoryWeights: Record<string, number>): BlobV2Weights {
   return weights;
 }
 
-export function Beat06Map() {
+type Beat06MapProps = {
+  onCompareClick?: () => void;
+  onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
+  onMarkerPositionsChange?: (
+    positions: Record<string, MarkerScreenPosition>,
+  ) => void;
+};
+
+export function Beat06Map({
+  onCompareClick,
+  onMarkerPositionsChange,
+  onParkClick,
+}: Beat06MapProps) {
   const progress = useScrollProgressValue();
   const reducedMotion = useReducedMotion();
   const viewport = useViewportSize();
@@ -185,8 +198,23 @@ export function Beat06Map() {
   const handleMarkerPositionsChange = useCallback(
     (positions: Record<string, MarkerScreenPosition>) => {
       setMarkerPositions(positions);
+      const frameRect = mapFrameRef.current?.getBoundingClientRect();
+      const viewportPositions = frameRect
+        ? Object.fromEntries(
+            Object.entries(positions).map(([parkId, position]) => [
+              parkId,
+              {
+                ...position,
+                x: position.x + frameRect.left,
+                y: position.y + frameRect.top,
+              },
+            ]),
+          )
+        : positions;
+
+      onMarkerPositionsChange?.(viewportPositions);
     },
-    [],
+    [onMarkerPositionsChange],
   );
 
   const measureCalloutAnchors = useCallback(() => {
@@ -312,10 +340,19 @@ export function Beat06Map() {
           expandProgress={expandProgress}
           labelsProgress={labelsProgress}
           markers={markers}
+          onParkClick={onParkClick}
           onMarkerPositionsChange={handleMarkerPositionsChange}
           progress={progress}
           reducedMotion={reducedMotion}
         />
+
+        <button
+          className={`${styles.compareButton} btn-primary`}
+          onClick={onCompareClick}
+          type="button"
+        >
+          Compare all five
+        </button>
 
         <svg className={styles.annotationArrows} aria-hidden="true">
           <defs>

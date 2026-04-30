@@ -1,0 +1,251 @@
+.actii-choreo {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.actii-choreo__wash {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  animation: choreo-wash-in 520ms var(--ease) both;
+  will-change: opacity;
+}
+
+.actii-choreo--to-map .actii-choreo__wash {
+  animation: choreo-wash-out 900ms var(--ease) both;
+}
+
+.actii-choreo__blob {
+  position: absolute;
+  top: var(--blob-start-y);
+  left: var(--blob-start-x);
+  width: var(--blob-start-size);
+  height: var(--blob-start-size);
+  animation: choreo-blob-to-center 680ms var(--ease) both;
+  transform: translate3d(-50%, -50%, 0);
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+.actii-choreo--to-park .actii-choreo__blob::after {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  border: 0.5px solid rgba(26, 26, 26, 0.14);
+  border-radius: 50%;
+  opacity: 0;
+  animation: choreo-blob-ring 760ms var(--ease) 420ms both;
+}
+
+.actii-choreo--to-park .actii-choreo__blob {
+  animation:
+    choreo-blob-to-center 680ms var(--ease) both,
+    choreo-blob-dissolve 420ms var(--ease) 820ms forwards;
+}
+
+.actii-choreo--to-map .actii-choreo__blob {
+  opacity: 0;
+  animation:
+    choreo-blob-return 520ms var(--ease) 520ms both,
+    choreo-blob-appear 240ms var(--ease) 500ms both;
+}
+
+.actii-choreo__particle {
+  position: absolute;
+  top: var(--particle-y);
+  left: var(--particle-x);
+  width: var(--particle-size);
+  height: var(--particle-size);
+  border-radius: 50%;
+  background: var(--particle-color);
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+}
+
+.actii-choreo--to-park .actii-choreo__particle {
+  animation: choreo-particle-to-word 920ms var(--ease) var(--particle-delay) both;
+}
+
+.actii-choreo--to-map .actii-choreo__particle {
+  opacity: 1;
+  animation: choreo-particle-to-blob 640ms var(--ease) var(--particle-delay) both;
+}
+
+.actii-choreo__word {
+  position: absolute;
+  top: var(--word-y);
+  left: var(--word-x);
+  color: var(--color-text-primary);
+  font-family: "Inter", sans-serif;
+  font-size: var(--word-size);
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0;
+  text-transform: lowercase;
+  transform: translate3d(-50%, -50%, 0);
+  white-space: nowrap;
+  will-change: opacity, transform;
+}
+
+.actii-choreo--to-park .actii-choreo__word {
+  animation: choreo-word-arrive 280ms var(--ease) var(--word-delay) both;
+}
+
+@keyframes choreo-wash-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0.94;
+  }
+}
+
+@keyframes choreo-wash-out {
+  from {
+    opacity: 0.94;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes choreo-blob-to-center {
+  from {
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+
+  to {
+    transform:
+      translate3d(
+        calc(-50% + var(--blob-dx)),
+        calc(-50% + var(--blob-dy)),
+        0
+      )
+      scale(var(--blob-scale));
+  }
+}
+
+@keyframes choreo-blob-dissolve {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes choreo-blob-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  38% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes choreo-blob-appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes choreo-blob-return {
+  from {
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+
+  to {
+    transform:
+      translate3d(
+        calc(-50% + var(--blob-dx)),
+        calc(-50% + var(--blob-dy)),
+        0
+      )
+      scale(var(--blob-scale));
+  }
+}
+
+@keyframes choreo-particle-to-word {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(0.8);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  84% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate3d(
+        calc(-50% + var(--particle-dx)),
+        calc(-50% + var(--particle-dy)),
+        0
+      )
+      scale(0.52);
+  }
+}
+
+@keyframes choreo-particle-to-blob {
+  0% {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0) scale(0.72);
+  }
+
+  82% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate3d(
+        calc(-50% + var(--particle-dx)),
+        calc(-50% + var(--particle-dy)),
+        0
+      )
+      scale(0.45);
+  }
+}
+
+@keyframes choreo-word-arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% + 3px), 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .actii-choreo {
+    display: none;
+  }
+}

@@ -25,6 +25,7 @@ export type BlobProps = {
   weights: BlobWeights;
   size?: number;
   breathing?: boolean;
+  colorOrder?: "fixed" | "ascending";
   seed?: number;
   className?: string;
   style?: CSSProperties;
@@ -35,6 +36,7 @@ export function Blob({
   weights,
   size = 320,
   breathing = true,
+  colorOrder = "fixed",
   seed = 0,
   className,
   style,
@@ -55,6 +57,13 @@ export function Blob({
   const cy = size / 2;
   const ringRadius = size * 0.22;
   const baseAngle = (seed % 60) * (Math.PI / 180);
+  const renderLenses =
+    colorOrder === "ascending"
+      ? [...LENSES].sort((a, b) => {
+          const weightDifference = norm[a] - norm[b];
+          return weightDifference || LENSES.indexOf(a) - LENSES.indexOf(b);
+        })
+      : LENSES;
 
   return (
     <svg
@@ -91,10 +100,11 @@ export function Blob({
           fill="var(--color-surface-secondary)"
           opacity={0.6}
         />
-        {LENSES.map((lens, i) => {
+        {renderLenses.map((lens) => {
           const w = norm[lens];
           if (w <= 0) return null;
-          const angle = baseAngle + (i / LENSES.length) * Math.PI * 2;
+          const lensIndex = LENSES.indexOf(lens);
+          const angle = baseAngle + (lensIndex / LENSES.length) * Math.PI * 2;
           const px = cx + Math.cos(angle) * ringRadius;
           const py = cy + Math.sin(angle) * ringRadius;
           const r = size * (0.18 + 0.34 * w); // bigger weight → bigger blob

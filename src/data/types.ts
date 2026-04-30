@@ -24,6 +24,15 @@ export type Edge = {
   weight: number;
 };
 
+export type WordNetworkNode = Node & {
+  id: string;
+};
+
+export type WordNetwork = {
+  nodes: WordNetworkNode[];
+  edges: Edge[];
+};
+
 export type Park = {
   id: string;
   name: string;
