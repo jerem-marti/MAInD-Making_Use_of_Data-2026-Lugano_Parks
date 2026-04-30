@@ -29,7 +29,7 @@ const forcePanelRoot = document.getElementById("force-panel")!;
 const legendRoot = document.getElementById("legend")!;
 
 (async () => {
-  const res = await fetch("/data/parks.json");
+  const res = await fetch(`${import.meta.env.BASE_URL}data/parks.json`);
   const data: ParksData = await res.json();
 
   const tooltip = mountTooltip(tooltipRoot);
