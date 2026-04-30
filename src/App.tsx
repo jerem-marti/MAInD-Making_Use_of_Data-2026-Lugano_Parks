@@ -85,9 +85,6 @@ function AppShell() {
         <ScrollSection vh={1.5} id="beat-02" label="Beat 02 — Method">
           <Beat02Method />
         </ScrollSection>
-        <ScrollSection vh={1.5} id="beat-03" label="Beat 03 — Volume">
-          <Beat03Volume />
-        </ScrollSection>
         <ScrollSection vh={5} id="beat-04" label="Beat 04 — Lenses">
           <Beat04Lenses />
         </ScrollSection>
