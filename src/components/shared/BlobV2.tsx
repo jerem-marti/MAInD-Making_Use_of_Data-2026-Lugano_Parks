@@ -36,7 +36,7 @@ const LENS_BASE_ANGLE: Record<string, number> = {
   sensory: 300,      // mint    — between yellow and purple
 };
 
-function spotOffsets(seed: number) {
+export function spotOffsets(seed: number) {
   return LENSES.map((lens) => {
     const rad = (LENS_BASE_ANGLE[lens] + seed * 45) * (Math.PI / 180);
     return { x: Math.cos(rad) * 35, y: Math.sin(rad) * 35 };

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { BlobV2, type BlobV2Weights } from "../shared/BlobV2";
+import { BlobV2, spotOffsets, type BlobV2Weights } from "../shared/BlobV2";
 import { LENSES, LENS_TOKEN, type Lens } from "../shared/LensSwatch";
 import type { ParkMapFeature } from "./parkMapData";
 import styles from "./Beat06Map.module.css";
@@ -50,6 +50,7 @@ type MapLibreMapProps = {
   expandProgress: number;
   labelsProgress: number;
   reducedMotion: boolean;
+  wordCountVisible: boolean;
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
   onMarkerPositionsChange?: (
     positions: Record<string, MarkerScreenPosition>,
@@ -102,7 +103,7 @@ function fitToMarkers(
     0,
   );
   const maxRadius = maxDiameter / 2;
-  const maxLabelOffset = Math.min(76, Math.max(18, maxDiameter * 0.42));
+  const maxLabelOffset = Math.min(124, Math.max(22, maxDiameter * 0.72));
   const labelClearance = Math.ceil(maxLabelOffset + 14); // label height + breathing
   const markerHaloBottom = Math.ceil(
     Math.max(maxRadius, labelClearance) + 18,
@@ -200,7 +201,7 @@ function markerStyle(
   labelsProgress: number,
 ): MarkerStyle {
   return {
-    "--label-offset": `${Math.min(76, Math.max(18, marker.diameter * 0.42))}px`,
+    "--label-offset": `${Math.min(124, Math.max(22, marker.diameter * 0.72))}px`,
     "--marker-size": `${marker.diameter}px`,
     "--marker-scale": markerProgress.toFixed(3),
     "--label-opacity": labelsProgress.toFixed(3),
@@ -215,6 +216,21 @@ const LENS_LABEL: Record<Lens, string> = {
   infrastructure: "infrastructure",
   tension: "tension",
 };
+
+function lensWordCounts(weights: BlobV2Weights, totalWords: number): Record<Lens, number> {
+  const raw = LENSES.map((lens) => Math.max(0, weights[lens] ?? 0));
+  const total = raw.reduce((s, v) => s + v, 0) || 1;
+  return Object.fromEntries(
+    LENSES.map((lens, i) => [lens, Math.round((raw[i] / total) * totalWords)])
+  ) as Record<Lens, number>;
+}
+
+// Per-lens radial distance from blob center as % of blob size — all > 50 so
+// labels sit just outside the blob circle (blob radius = 50% of container).
+// Varied values give an organic spread; connector lines bridge each number back
+// to its colour spot (which lives at radius 35, the BlobV2 spot anchor).
+// Order matches LENSES: emotional, sensory, action, relational, infrastructure, tension.
+const LABEL_RADII = [56, 64, 53, 67, 58, 62];
 
 function topLenses(weights: BlobV2Weights, count = 2) {
   return LENSES.map((lens) => ({
@@ -234,12 +250,14 @@ function ParkMarkerView({
   progress,
   labelsProgress,
   reducedMotion,
+  wordCountVisible,
   onParkClick,
 }: {
   marker: ParkMarker;
   progress: number;
   labelsProgress: number;
   reducedMotion: boolean;
+  wordCountVisible: boolean;
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
 }) {
   const markerProgress = bloomProgress(progress, marker.order, reducedMotion);
@@ -248,6 +266,10 @@ function ParkMarkerView({
   const strongestLensSummary = strongestLenses
     .map(({ lens, value }) => `${LENS_LABEL[lens]} ${formatLensShare(value)}`)
     .join(", ");
+  const seed = marker.order * 17 + 5;
+  const offsets = spotOffsets(seed);
+  const counts = lensWordCounts(marker.weights, marker.totalWords);
+  const labelAbove = marker.id === "lambertenghi";
 
   return (
     <button
@@ -270,37 +292,65 @@ function ParkMarkerView({
         <BlobV2
           ariaLabel={`${marker.name} aura`}
           paused={reducedMotion}
-          seed={marker.order * 17 + 5}
+          seed={seed}
           size={marker.diameter}
           weights={marker.weights}
         />
-      </span>
-      <span className={`${styles.markerLabel} t-body-s`}>{marker.name}</span>
-      <span className={styles.tooltip} role="tooltip">
-        <span className={styles.tooltipName}>{marker.name}</span>
-        <span className={styles.tooltipMeta}>
-          <span className={styles.tooltipCount}>{wordCount}</span>
-          <span className={styles.tooltipCountLabel}>reviewed words</span>
-        </span>
-        <span className={styles.tooltipLensGroup}>
-          <span className={styles.tooltipLensHeading}>strongest lenses</span>
-          {strongestLenses.map(({ lens, value }) => (
-            <span className={styles.tooltipLensRow} key={lens}>
-              <span className={styles.tooltipLensName}>
-                <span
-                  className={styles.tooltipSwatch}
-                  style={{ background: `var(${LENS_TOKEN[lens]})` }}
-                  aria-hidden="true"
+        <span
+          className={`${styles.blobCounts}${wordCountVisible ? ` ${styles.blobCountsVisible}` : ""}`}
+          aria-hidden="true"
+        >
+          {/* SVG connector lines + dots, one per lens */}
+          <svg
+            className={styles.blobConnectors}
+            viewBox="0 0 100 100"
+            overflow="visible"
+            aria-hidden="true"
+          >
+            {LENSES.map((lens, i) => {
+              const count = counts[lens];
+              if (!count) return null;
+              // Inner end: BlobV2 colour-spot anchor (radius 35 in viewBox units)
+              const ix = 50 + offsets[i].x;
+              const iy = 50 + offsets[i].y;
+              // Outer end: 3 units short of the number centre
+              const outerR = LABEL_RADII[i] - 3;
+              const ox = 50 + offsets[i].x * (outerR / 35);
+              const oy = 50 + offsets[i].y * (outerR / 35);
+              return (
+                <path
+                  key={lens}
+                  d={`M ${ix.toFixed(2)} ${iy.toFixed(2)} L ${ox.toFixed(2)} ${oy.toFixed(2)}`}
+                  stroke={`var(${LENS_TOKEN[lens]})`}
+                  strokeWidth="0.8"
+                  fill="none"
+                  opacity="0.7"
                 />
-                <span>{LENS_LABEL[lens]}</span>
+              );
+            })}
+          </svg>
+
+          {/* Per-lens word counts, positioned just outside the blob edge */}
+          {LENSES.map((lens, i) => {
+            const count = counts[lens];
+            if (!count) return null;
+            const scale = LABEL_RADII[i] / 35;
+            return (
+              <span
+                key={lens}
+                className={styles.blobCountLabel}
+                style={{
+                  left: `${50 + offsets[i].x * scale}%`,
+                  top: `${50 + offsets[i].y * scale}%`,
+                }}
+              >
+                {count}
               </span>
-              <span className={styles.tooltipLensValue}>
-                {formatLensShare(value)}
-              </span>
-            </span>
-          ))}
+            );
+          })}
         </span>
       </span>
+      <span className={`${styles.markerLabel}${labelAbove ? ` ${styles.markerLabelAbove}` : ""}`}>{marker.name}</span>
     </button>
   );
 }
@@ -311,6 +361,7 @@ export function MapLibreMap({
   expandProgress,
   labelsProgress,
   reducedMotion,
+  wordCountVisible,
   onParkClick,
   onMarkerPositionsChange,
 }: MapLibreMapProps) {
@@ -490,6 +541,7 @@ export function MapLibreMap({
           onParkClick={onParkClick}
           progress={progress}
           reducedMotion={reducedMotion}
+          wordCountVisible={wordCountVisible}
         />,
       );
       return record;
@@ -499,7 +551,7 @@ export function MapLibreMap({
       .filter((record) => !markers.some((marker) => marker.id === record.id))
       .forEach(disposeMarkerRecord);
     markersRef.current = records;
-  }, [labelsProgress, markers, onParkClick, progress, reducedMotion]);
+  }, [labelsProgress, markers, onParkClick, progress, reducedMotion, wordCountVisible]);
 
   return (
     <div className={styles.mapShell}>
