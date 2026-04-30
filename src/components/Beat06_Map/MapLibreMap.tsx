@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -188,11 +188,13 @@ function updateMapProjection(
   onMarkerPositionsChange?: (
     positions: Record<string, MarkerScreenPosition>,
   ) => void,
-) {
+): Record<string, MarkerScreenPosition> {
   map.resize();
 
   fitToMarkers(map, bounds, markers, expandProgress);
-  onMarkerPositionsChange?.(projectMarkerPositions(map, markers));
+  const positions = projectMarkerPositions(map, markers);
+  onMarkerPositionsChange?.(positions);
+  return positions;
 }
 
 function markerStyle(
@@ -230,7 +232,67 @@ function lensWordCounts(weights: BlobV2Weights, totalWords: number): Record<Lens
 // Varied values give an organic spread; connector lines bridge each number back
 // to its colour spot (which lives at radius 35, the BlobV2 spot anchor).
 // Order matches LENSES: emotional, sensory, action, relational, infrastructure, tension.
-const LABEL_RADII = [56, 64, 53, 67, 58, 62];
+const BASE_LABEL_RADII = [56, 64, 53, 67, 58, 62];
+
+// Approx half-width of a 4-digit count label and breathing room beyond a
+// neighbour's blob edge before we hide a label that points at it.
+const LABEL_HALF_WIDTH = 18;
+const LABEL_GAP = 6;
+const EMPTY_HIDDEN: readonly boolean[] = [false, false, false, false, false, false];
+
+function neighborReachPx(diameter: number): number {
+  const maxRadiusPct = Math.max(...BASE_LABEL_RADII) / 100;
+  return diameter * maxRadiusPct + LABEL_HALF_WIDTH + LABEL_GAP;
+}
+
+function computeHiddenLabels(
+  positions: Record<string, MarkerScreenPosition>,
+  markers: ParkMarker[],
+): Record<string, boolean[]> {
+  const result: Record<string, boolean[]> = {};
+  for (const a of markers) {
+    const pa = positions[a.id];
+    const hidden: boolean[] = [false, false, false, false, false, false];
+    if (!pa) {
+      result[a.id] = hidden;
+      continue;
+    }
+    const seedA = a.order * 17 + 5;
+    const offsetsA = spotOffsets(seedA);
+
+    for (let i = 0; i < 6; i++) {
+      const radiusFactor = (BASE_LABEL_RADII[i] / 35) * (a.diameter / 100);
+      const lx = pa.x + offsetsA[i].x * radiusFactor;
+      const ly = pa.y + offsetsA[i].y * radiusFactor;
+
+      for (const b of markers) {
+        if (b.id === a.id) continue;
+        const pb = positions[b.id];
+        if (!pb) continue;
+        if (Math.hypot(lx - pb.x, ly - pb.y) < neighborReachPx(b.diameter)) {
+          hidden[i] = true;
+          break;
+        }
+      }
+    }
+    result[a.id] = hidden;
+  }
+  return result;
+}
+
+function sameHiddenMap(
+  a: Record<string, boolean[]>,
+  b: Record<string, boolean[]>,
+): boolean {
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((k) => {
+    const av = a[k];
+    const bv = b[k];
+    if (!bv || av.length !== bv.length) return false;
+    return av.every((v, i) => v === bv[i]);
+  });
+}
 
 function topLenses(weights: BlobV2Weights, count = 2) {
   return LENSES.map((lens) => ({
@@ -251,6 +313,7 @@ function ParkMarkerView({
   labelsProgress,
   reducedMotion,
   wordCountVisible,
+  hiddenLabels,
   onParkClick,
 }: {
   marker: ParkMarker;
@@ -258,6 +321,7 @@ function ParkMarkerView({
   labelsProgress: number;
   reducedMotion: boolean;
   wordCountVisible: boolean;
+  hiddenLabels: readonly boolean[];
   onParkClick?: (parkId: string, source?: MarkerTransitionSource) => void;
 }) {
   const markerProgress = bloomProgress(progress, marker.order, reducedMotion);
@@ -270,11 +334,13 @@ function ParkMarkerView({
   const offsets = spotOffsets(seed);
   const counts = lensWordCounts(marker.weights, marker.totalWords);
   const labelAbove = marker.id === "lambertenghi";
+  const [revealAll, setRevealAll] = useState(false);
 
   return (
     <button
       aria-label={`${marker.name}, ${wordCount} reviewed words, strongest lenses: ${strongestLensSummary}`}
       className={styles.markerButton}
+      onBlur={() => setRevealAll(false)}
       onClick={(event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         onParkClick?.(marker.id, {
@@ -284,6 +350,9 @@ function ParkMarkerView({
           height: rect.height,
         });
       }}
+      onFocus={() => setRevealAll(true)}
+      onPointerEnter={() => setRevealAll(true)}
+      onPointerLeave={() => setRevealAll(false)}
       style={markerStyle(marker, markerProgress, labelsProgress)}
       tabIndex={markerProgress > 0.5 ? 0 : -1}
       type="button"
@@ -310,21 +379,23 @@ function ParkMarkerView({
             {LENSES.map((lens, i) => {
               const count = counts[lens];
               if (!count) return null;
+              const visible = revealAll || !hiddenLabels[i];
               // Inner end: BlobV2 colour-spot anchor (radius 35 in viewBox units)
               const ix = 50 + offsets[i].x;
               const iy = 50 + offsets[i].y;
               // Outer end: 3 units short of the number centre
-              const outerR = LABEL_RADII[i] - 3;
+              const outerR = BASE_LABEL_RADII[i] - 3;
               const ox = 50 + offsets[i].x * (outerR / 35);
               const oy = 50 + offsets[i].y * (outerR / 35);
               return (
                 <path
+                  className={styles.blobConnectorPath}
                   key={lens}
                   d={`M ${ix.toFixed(2)} ${iy.toFixed(2)} L ${ox.toFixed(2)} ${oy.toFixed(2)}`}
                   stroke={`var(${LENS_TOKEN[lens]})`}
                   strokeWidth="0.8"
                   fill="none"
-                  opacity="0.7"
+                  opacity={visible ? 0.7 : 0}
                 />
               );
             })}
@@ -334,7 +405,8 @@ function ParkMarkerView({
           {LENSES.map((lens, i) => {
             const count = counts[lens];
             if (!count) return null;
-            const scale = LABEL_RADII[i] / 35;
+            const visible = revealAll || !hiddenLabels[i];
+            const scale = BASE_LABEL_RADII[i] / 35;
             return (
               <span
                 key={lens}
@@ -342,6 +414,7 @@ function ParkMarkerView({
                 style={{
                   left: `${50 + offsets[i].x * scale}%`,
                   top: `${50 + offsets[i].y * scale}%`,
+                  opacity: visible ? 1 : 0,
                 }}
               >
                 {count}
@@ -368,6 +441,9 @@ export function MapLibreMap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<MarkerRecord[]>([]);
+  const [hiddenLabelsById, setHiddenLabelsById] = useState<
+    Record<string, boolean[]>
+  >({});
 
   const bounds = useMemo(() => {
     const next = new maplibregl.LngLatBounds();
@@ -387,6 +463,26 @@ export function MapLibreMap({
   expandProgressRef.current = expandProgress;
   markersDataRef.current = markers;
   onMarkerPositionsChangeRef.current = onMarkerPositionsChange;
+
+  const refreshProjection = (
+    map: maplibregl.Map,
+    boundsArg: maplibregl.LngLatBounds,
+    markersArg: ParkMarker[],
+    expandProgressArg: number,
+    onPositionsChange:
+      | ((positions: Record<string, MarkerScreenPosition>) => void)
+      | undefined,
+  ) => {
+    const positions = updateMapProjection(
+      map,
+      boundsArg,
+      markersArg,
+      expandProgressArg,
+      onPositionsChange,
+    );
+    const next = computeHiddenLabels(positions, markersArg);
+    setHiddenLabelsById((prev) => (sameHiddenMap(prev, next) ? prev : next));
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -411,7 +507,7 @@ export function MapLibreMap({
     map.doubleClickZoom.disable();
     map.getCanvas().tabIndex = -1;
 
-    updateMapProjection(
+    refreshProjection(
       map,
       boundsRef.current,
       markersDataRef.current,
@@ -421,7 +517,7 @@ export function MapLibreMap({
 
     map.on("load", () => {
       hideSymbolLayers(map);
-      updateMapProjection(
+      refreshProjection(
         map,
         boundsRef.current,
         markersDataRef.current,
@@ -429,7 +525,7 @@ export function MapLibreMap({
         onMarkerPositionsChangeRef.current,
       );
       loadFrameRef.current = requestAnimationFrame(() => {
-        updateMapProjection(
+        refreshProjection(
           map,
           boundsRef.current,
           markersDataRef.current,
@@ -437,7 +533,7 @@ export function MapLibreMap({
           onMarkerPositionsChangeRef.current,
         );
         settleFrameRef.current = requestAnimationFrame(() => {
-          updateMapProjection(
+          refreshProjection(
             map,
             boundsRef.current,
             markersDataRef.current,
@@ -454,7 +550,7 @@ export function MapLibreMap({
       }
 
       resizeFrameRef.current = requestAnimationFrame(() => {
-        updateMapProjection(
+        refreshProjection(
           map,
           boundsRef.current,
           markersDataRef.current,
@@ -487,7 +583,7 @@ export function MapLibreMap({
     const map = mapRef.current;
     if (!map) return;
 
-    updateMapProjection(
+    refreshProjection(
       map,
       bounds,
       markers,
@@ -496,7 +592,7 @@ export function MapLibreMap({
     );
 
     const frame = requestAnimationFrame(() => {
-      updateMapProjection(
+      refreshProjection(
         map,
         bounds,
         markers,
@@ -506,6 +602,7 @@ export function MapLibreMap({
     });
 
     return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bounds, expandProgress, markers, onMarkerPositionsChange]);
 
   useEffect(() => {
@@ -536,6 +633,7 @@ export function MapLibreMap({
       record.marker.setLngLat(marker.coordinates);
       record.root.render(
         <ParkMarkerView
+          hiddenLabels={hiddenLabelsById[marker.id] ?? EMPTY_HIDDEN}
           labelsProgress={labelsProgress}
           marker={marker}
           onParkClick={onParkClick}
@@ -551,7 +649,15 @@ export function MapLibreMap({
       .filter((record) => !markers.some((marker) => marker.id === record.id))
       .forEach(disposeMarkerRecord);
     markersRef.current = records;
-  }, [labelsProgress, markers, onParkClick, progress, reducedMotion, wordCountVisible]);
+  }, [
+    hiddenLabelsById,
+    labelsProgress,
+    markers,
+    onParkClick,
+    progress,
+    reducedMotion,
+    wordCountVisible,
+  ]);
 
   return (
     <div className={styles.mapShell}>

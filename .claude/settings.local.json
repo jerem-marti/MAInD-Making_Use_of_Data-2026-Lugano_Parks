@@ -28,7 +28,9 @@
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/documentation.md)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/print.css)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/assets/img/phase3/01-ciani.png)",
-      "Bash(pkill -f \"http.server 8765\")"
+      "Bash(pkill -f \"http.server 8765\")",
+      "Bash(git stash *)",
+      "Bash(git checkout *)"
     ]
   }
 }
