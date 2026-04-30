@@ -33,8 +33,10 @@ export function Beat02Method() {
           }}
         >
           We collected the Google reviews of five public green spaces in Lugano:
-          Parco Ciani, Parco Tassino, Parco San Michele, Parco Panoramico
-          Paradiso, and Parco Lambertenghi. Together, these are the
+          <strong> Parco Ciani</strong>, <strong>Parco Tassino</strong>,{" "}
+          <strong>Parco San Michele</strong>,{" "}
+          <strong>Parco Panoramico Paradiso</strong>, and{" "}
+          <strong>Parco Lambertenghi</strong>. Together, these are the
           most-reviewed green spaces in the city.
         </p>
         <p

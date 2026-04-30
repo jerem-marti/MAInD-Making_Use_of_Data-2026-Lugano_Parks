@@ -16,12 +16,12 @@
   --color-border-medium: #C9C5BA;
 
   /* Lenses */
-  --color-emotional: #B8A4F0;
-  --color-sensory: #5FE3A8;
-  --color-action: #6BD8EF;
-  --color-relational: #F0CD3D;
-  --color-infrastructure: #A8B8C8;
-  --color-tension: #FF7060;
+  --color-emotional: hsl(270, 70%, 70%);
+  --color-sensory: hsl(153, 80%, 70%);
+  --color-action: hsl(190, 80%, 70%);
+  --color-relational: hsl(57, 65%, 60%);
+  --color-infrastructure: hsl(33, 90%, 70%);
+  --color-tension: hsl(0, 80%, 70%);
 
   /* Spacing */
   --space-1: 4px;

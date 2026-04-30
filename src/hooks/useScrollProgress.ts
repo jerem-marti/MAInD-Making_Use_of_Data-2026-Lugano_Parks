@@ -14,7 +14,8 @@ import { useEffect, useRef, useState, type RefObject } from "react";
  * Returns exactly 0 before the section is reached and exactly 1 after
  * it has been passed.
  *
- * Updates on scroll and resize via rAF coalescing.
+ * Updates immediately on scroll/resize, then settles once more on the next
+ * animation frame to catch browser scroll restoration and layout changes.
  */
 export function useScrollProgress(ref: RefObject<HTMLElement | null>): number {
   const [progress, setProgress] = useState(0);
@@ -39,16 +40,21 @@ export function useScrollProgress(ref: RefObject<HTMLElement | null>): number {
     };
 
     const onScroll = () => {
-      if (rafRef.current !== null) return;
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      compute();
       rafRef.current = requestAnimationFrame(compute);
     };
 
     compute();
+    const restoreTimer = window.setTimeout(onScroll, 120);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    window.addEventListener("pageshow", onScroll);
     return () => {
+      window.clearTimeout(restoreTimer);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      window.removeEventListener("pageshow", onScroll);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
   }, [ref]);

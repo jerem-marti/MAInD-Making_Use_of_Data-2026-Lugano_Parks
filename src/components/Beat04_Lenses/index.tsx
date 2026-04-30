@@ -7,7 +7,6 @@ type Lens = {
   name: string;
   gloss: string;
   english: string;
-  italian: string;
   color: string;
   range: readonly [number, number];
 };
@@ -23,7 +22,6 @@ const LENSES: Lens[] = [
     name: "Experiential–Emotional",
     gloss: "how the park made someone feel",
     english: "beautiful · peaceful · wonderful · relaxing · magical",
-    italian: "bello · tranquillo · meraviglioso · rilassante · magico",
     color: "var(--lens-emotional, var(--color-emotional))",
     range: [0.1, 0.2],
   },
@@ -31,7 +29,6 @@ const LENSES: Lens[] = [
     name: "Sensory–Environmental",
     gloss: "what it looked, sounded, smelled like",
     english: "green · quiet · clean · shaded · flowery · view",
-    italian: "verde · silenzioso · pulito · ombreggiato · fiorito · vista",
     color: "var(--lens-sensory, var(--color-sensory))",
     range: [0.2, 0.3],
   },
@@ -39,7 +36,6 @@ const LENSES: Lens[] = [
     name: "Action",
     gloss: "what people did there",
     english: "walk · relax · picnic · visit · play · run",
-    italian: "passeggiare · rilassarsi · picnic · visitare · giocare · correre",
     color: "var(--lens-action, var(--color-action))",
     range: [0.3, 0.4],
   },
@@ -47,7 +43,6 @@ const LENSES: Lens[] = [
     name: "Relational Context",
     gloss: "who was there, who it's for",
     english: "children · kids · families · couples · dogs",
-    italian: "bambini · ragazzi · famiglie · coppie · cani",
     color: "var(--lens-relational, var(--color-relational))",
     range: [0.4, 0.5],
   },
@@ -55,7 +50,6 @@ const LENSES: Lens[] = [
     name: "Infrastructure–Amenities",
     gloss: "what was physically there",
     english: "bench · playground · trees · parking · path · fountain",
-    italian: "panchina · parco giochi · alberi · parcheggio · sentiero · fontana",
     color: "var(--lens-infrastructure, var(--color-infrastructure))",
     range: [0.5, 0.6],
   },
@@ -63,7 +57,6 @@ const LENSES: Lens[] = [
     name: "Tension–Complaint",
     gloss: "what disappointed",
     english: "dirty · crowded · neglected · broken · noisy",
-    italian: "sporco · affollato · trascurato · rotto · rumoroso",
     color: "var(--lens-tension, var(--color-tension))",
     range: [0.6, 0.7],
   },
@@ -124,7 +117,7 @@ function EmphasisWord({ children }: { children: ReactNode }) {
 export function Beat04Lenses() {
   const progress = useScrollProgressValue();
   const reducedMotion = useReducedMotion();
-  const trackY = -progress * 1280;
+  const trackY = -progress * 1120;
 
   return (
     <div className={styles.stage}>
@@ -136,9 +129,15 @@ export function Beat04Lenses() {
           className={styles.intro}
           style={animatedStyle(progress, 0.02, 0.1, reducedMotion)}
         >
-          To read this much language, we sorted every meaningful word into one
-          of six lenses. Each lens captures a different way people describe a
-          place.
+          <p>Over 3,400 words from five parks—sorted into six lenses.</p>
+          <p>
+            Six ways people describe a place. Six dimensions that shape an
+            aura.
+          </p>
+          <p>
+            What you're about to see: the building blocks of every park's
+            identity.
+          </p>
         </div>
 
         <div className={styles.lensList}>
@@ -155,30 +154,14 @@ export function Beat04Lenses() {
                   <p>{lens.gloss}</p>
                 </div>
                 <p className={styles.english}>{lens.english}</p>
-                <p className={styles.italian}>{lens.italian}</p>
               </div>
             </section>
           ))}
         </div>
 
-        <div
-          className={styles.tensionNote}
-          style={animatedStyle(progress, 0.75, 0.85, reducedMotion)}
-        >
-          <p>
-            A note before we go further. Across all 3,400+ words from all five
-            parks, only about <strong>2%</strong> belong to the
-            Tension–Complaint lens. Either Lugano's parks are unusually free of
-            friction — or people who are unhappy don't tend to write reviews.
-          </p>
-          <p>
-            <em>Hold that question.</em>
-          </p>
-        </div>
-
         <p
           className={styles.ambiguityNote}
-          style={animatedStyle(progress, 0.9, 1, reducedMotion)}
+          style={animatedStyle(progress, 0.75, 0.85, reducedMotion)}
         >
           Some words sit between two lenses. <EmphasisWord>Quiet</EmphasisWord>{" "}
           can be sensory or emotional. <EmphasisWord>Green</EmphasisWord> can

@@ -22,14 +22,14 @@ type FragmentStyle = CSSProperties & {
 const SELECTED_EXCERPT_INDICES = [4, 16, 53, 57, 79, 87, 82, 68] as const;
 
 const POSITIONS = [
-  { left: "7vw", top: "13vh", width: "220px" },
-  { right: "9vw", top: "15vh", width: "270px" },
-  { left: "18vw", top: "34vh", width: "255px" },
-  { right: "17vw", top: "37vh", width: "250px" },
-  { left: "8vw", bottom: "23vh", width: "285px" },
-  { right: "8vw", bottom: "20vh", width: "290px" },
-  { left: "28vw", bottom: "9vh", width: "290px" },
-  { right: "24vw", bottom: "10vh", width: "310px" },
+  { left: "6vw", top: "11vh", width: "210px" },
+  { right: "7vw", top: "13vh", width: "235px" },
+  { left: "11vw", top: "39vh", width: "230px" },
+  { right: "10vw", top: "42vh", width: "225px" },
+  { left: "7vw", bottom: "16vh", width: "240px" },
+  { right: "7vw", bottom: "14vh", width: "245px" },
+  { left: "32vw", top: "18vh", width: "230px" },
+  { right: "31vw", bottom: "8vh", width: "250px" },
 ] as const;
 
 function clamp(value: number, min = 0, max = 1): number {
@@ -130,13 +130,13 @@ export function Beat01Opening() {
             transform: `translateY(${titleOffset.toFixed(1)}px)`,
           }}
         >
-          Green Spaces of Lugano
+          Aura of Words
         </h1>
         <p
           className={styles.subtitle}
           style={{ opacity: subtitleVisible ? 1 : 0 }}
         >
-          What people write when they write about parks
+          Green Spaces of Lugano
         </p>
       </div>
 

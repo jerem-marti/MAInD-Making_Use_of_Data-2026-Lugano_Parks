@@ -1,0 +1,175 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  padding: 0 var(--space-7);
+  border-bottom: 0.5px solid var(--color-border-light);
+  background: var(--color-bg);
+}
+
+.header[data-transition="enter"] {
+  animation: park-header-in 300ms var(--ease) 160ms both;
+}
+
+.header[data-transition="cycle"] .identityMetaAnimated,
+.header[data-transition="cycle"] .aura {
+  animation: park-header-crossfade 300ms var(--ease) both;
+}
+
+.variantA {
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-5);
+}
+
+.variantA :global(.row1) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.variantA :global(.row1-right) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.variantA :global(.row2) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.variantA :global(.identity) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.variantA :global(.identity-meta) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.variantA :global(.identity-meta .park-name) {
+  margin: 0;
+}
+
+.variantA :global(.cycle) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  transition: color 200ms ease;
+}
+
+.variantA :global(.cycle:hover) {
+  color: var(--color-text-primary);
+}
+
+.variantA :global(.dot-sep) {
+  margin: 0 var(--space-2);
+  color: var(--color-text-tertiary);
+}
+
+.statValue {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.aura {
+  flex: 0 0 auto;
+}
+
+.auraFrame {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.auraFrame:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
+}
+
+@keyframes park-header-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes park-header-crossfade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .identityMetaAnimated,
+  .aura {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding-right: var(--space-4);
+    padding-left: var(--space-4);
+  }
+
+  .variantA {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+
+  .variantA :global(.row1) {
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .variantA :global(.row1-right) {
+    gap: var(--space-3);
+  }
+
+  .variantA :global(.identity) {
+    width: 100%;
+    gap: var(--space-2);
+  }
+
+  .variantA :global(.identity-meta) {
+    min-width: 0;
+  }
+
+  .variantA :global(.identity-meta .park-name) {
+    text-align: center;
+  }
+}

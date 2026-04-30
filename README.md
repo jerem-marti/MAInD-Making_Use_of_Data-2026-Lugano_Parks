@@ -78,7 +78,7 @@ up the new values.
 
 ## Data shapes
 
-### `src/data/parks.json` (Act I summary)
+### `src/data/parks.json` (Act I summary + Act II word network)
 
 ```ts
 {
@@ -97,9 +97,24 @@ up the new values.
     },
     topTerms: [{ term, category, frequency }, ... 12],
     exampleExcerpts: [string, ... 8],     // 4–16 words each, distinct
+    wordNetwork: {
+      nodes: [{
+        id: "beautiful",
+        term: "beautiful",
+        category: "experiential_emotional",
+        frequency: 42,
+        exampleExcerpt: "first source context excerpt for this term",
+      }, ...],                             // frequency >= 2 only
+      edges: [{ source, target, weight }, ...],
+    },
   }, ...]
 }
 ```
+
+`wordNetwork` is precomputed by `npm run preprocess` from
+`data/parks_analysis_V2.xlsx`; the frontend should consume this JSON only and
+never parse xlsx. Co-occurrence edges are unordered/deduplicated and are kept
+only when both endpoints survive the `frequency >= 2` node filter.
 
 ### `src/data/excerpts-pool.json`
 

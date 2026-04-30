@@ -1,75 +1,63 @@
 import {
   forceCollide,
-  forceLink,
   forceManyBody,
   forceSimulation,
   forceX,
   forceY,
   type Simulation,
-  type SimulationLinkDatum,
   type SimulationNodeDatum,
 } from "d3-force";
 
 import type { Category, Edge, Node } from "../data/types";
 
 /**
- * Centroid coordinates for each category, expressed as fractions of the
- * canvas. Hexagonal arrangement defined in the Phase 3 spec. Resolved to
- * pixels per simulation by multiplying by canvas width / height.
+ * Fixed category geography for View B. Coordinates are fractions of the
+ * canvas and are resolved to pixels per simulation.
  */
 export const CATEGORY_CENTROIDS: Record<Category, { fx: number; fy: number }> = {
-  experiential_emotional:    { fx: 0.5,  fy: 0.18 },
-  sensory_environmental:     { fx: 0.22, fy: 0.35 },
-  action:                    { fx: 0.78, fy: 0.35 },
-  tension_complaint:         { fx: 0.22, fy: 0.65 },
-  relational_context:        { fx: 0.78, fy: 0.65 },
-  infrastructure_amenities:  { fx: 0.5,  fy: 0.82 },
+  experiential_emotional: { fx: 0.5, fy: 0.18 },
+  sensory_environmental: { fx: 0.22, fy: 0.38 },
+  action: { fx: 0.78, fy: 0.38 },
+  relational_context: { fx: 0.78, fy: 0.68 },
+  infrastructure_amenities: { fx: 0.5, fy: 0.88 },
+  tension_complaint: { fx: 0.22, fy: 0.68 },
 };
 
 export type SimNode = SimulationNodeDatum &
   Node & {
+    id?: string;
     fontSize: number;
     radius: number;
   };
 
-export type SimEdge = SimulationLinkDatum<SimNode> & {
+export type SimEdge = {
+  source: SimNode;
+  target: SimNode;
   weight: number;
 };
 
 export type ForceParams = {
   clusterStrength: number;
-  chargeStrength: number; // multiplier on -sqrt(frequency); higher → more repulsion
+  chargeStrength: number;
   edgeStrength: number;
   edgeDistance: number;
 };
 
 export const DEFAULT_FORCE_PARAMS: ForceParams = {
-  clusterStrength: 0.15,
+  clusterStrength: 0.16,
   chargeStrength: 30,
-  edgeStrength: 0.05,
-  edgeDistance: 60,
+  edgeStrength: 0,
+  edgeDistance: 0,
 };
 
-/**
- * Word-network font size. Per design system §4.4:
- *   fontSize = 11 + 21 * (log(frequency) / log(maxFrequency))
- * Range: 11px (rare) to 32px (max-frequency word).
- * maxFrequency is per-park so smaller parks still use the full range.
- */
 export function computeFontSize(frequency: number, maxFrequency: number): number {
-  if (maxFrequency <= 1) return 11;
-  const f = Math.max(1, frequency);
-  return 11 + 21 * (Math.log(f) / Math.log(maxFrequency));
+  if (maxFrequency <= 0) return 12;
+  return 12 + 36 * Math.sqrt(Math.max(0, frequency) / maxFrequency);
 }
 
-/**
- * Approximate text width: each character ~0.6 of font size. Used as the
- * collision radius (half the rendered width plus padding).
- */
 export function computeRadius(term: string, fontSize: number): number {
-  const w = term.length * fontSize * 0.6;
-  const h = fontSize;
-  return Math.max(w, h) / 2 + 4;
+  const width = term.length * fontSize * 0.6;
+  return Math.max(width, fontSize) / 2 + 6;
 }
 
 export type LayoutResult = {
@@ -77,11 +65,6 @@ export type LayoutResult = {
   edges: SimEdge[];
 };
 
-/**
- * Build the SimNode/SimEdge arrays and run the simulation to convergence.
- * Caller passes canvas width/height in pixels. We seed positions at
- * category centroids so the layout stabilises faster.
- */
 export function runLayout(
   nodes: Node[],
   edges: Edge[],
@@ -89,93 +72,150 @@ export function runLayout(
   height: number,
   params: ForceParams = DEFAULT_FORCE_PARAMS,
 ): LayoutResult {
-  const maxFrequency = nodes.reduce((m, n) => Math.max(m, n.frequency), 1);
+  const maxFrequency = nodes.reduce((max, node) => {
+    return Math.max(max, node.frequency);
+  }, 1);
 
-  const simNodes: SimNode[] = nodes.map((n) => {
-    const fontSize = computeFontSize(n.frequency, maxFrequency);
-    const centroid = CATEGORY_CENTROIDS[n.category];
-    // Seed near the category centroid with a small random jitter so
-    // collision and edge forces have something to disambiguate.
+  const simNodes: SimNode[] = nodes.map((node) => {
+    const fontSize = computeFontSize(node.frequency, maxFrequency);
+    const centroid = CATEGORY_CENTROIDS[node.category];
+    const seed = hashTerm(node.term);
     const jitter = 30;
+
     return {
-      ...n,
+      ...node,
       fontSize,
-      radius: computeRadius(n.term, fontSize),
-      x: centroid.fx * width + (Math.random() - 0.5) * jitter,
-      y: centroid.fy * height + (Math.random() - 0.5) * jitter,
+      radius: computeRadius(node.term, fontSize),
+      x: centroid.fx * width + (seededUnit(seed) - 0.5) * jitter,
+      y: centroid.fy * height + (seededUnit(seed + 17) - 0.5) * jitter,
     };
   });
 
-  const nodeByTerm = new Map(simNodes.map((n) => [n.term, n]));
-  const simEdges: SimEdge[] = [];
-  for (const e of edges) {
-    const source = nodeByTerm.get(e.source);
-    const target = nodeByTerm.get(e.target);
-    if (!source || !target) continue;
-    simEdges.push({ source, target, weight: e.weight });
-  }
+  const nodeByTerm = new Map(simNodes.map((node) => [node.term, node]));
+  const simEdges: SimEdge[] = edges
+    .map((edge) => {
+      const source = nodeByTerm.get(edge.source);
+      const target = nodeByTerm.get(edge.target);
+      return source && target
+        ? { source, target, weight: edge.weight }
+        : undefined;
+    })
+    .filter((edge): edge is SimEdge => Boolean(edge));
 
-  const sim = buildSimulation(simNodes, simEdges, width, height, params);
+  const sim = buildSimulation(simNodes, width, height, params);
 
-  // Run synchronously to convergence; we render only the final frame.
-  // alpha decays from 1 toward alphaMin (default 0.001).
-  while (sim.alpha() > sim.alphaMin()) {
+  for (let i = 0; i < 320; i++) {
     sim.tick();
     clampToCanvas(simNodes, width, height);
   }
+
   sim.stop();
+  relaxTextOverlaps(simNodes, width, height);
 
   return { nodes: simNodes, edges: simEdges };
 }
 
+function hashTerm(term: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < term.length; i++) {
+    hash ^= term.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededUnit(seed: number): number {
+  const value = Math.sin((seed + 1) * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
 function clampToCanvas(nodes: SimNode[], width: number, height: number): void {
-  for (const n of nodes) {
-    const r = n.radius;
-    if (n.x !== undefined) n.x = Math.max(r, Math.min(width - r, n.x));
-    if (n.y !== undefined) n.y = Math.max(r, Math.min(height - r, n.y));
+  for (const node of nodes) {
+    const radius = node.radius;
+    if (node.x !== undefined) {
+      node.x = Math.max(radius, Math.min(width - radius, node.x));
+    }
+    if (node.y !== undefined) {
+      node.y = Math.max(radius, Math.min(height - radius, node.y));
+    }
+  }
+}
+
+function textBox(node: SimNode) {
+  return {
+    width: node.term.length * node.fontSize * 0.6 + 8,
+    height: node.fontSize + 4,
+  };
+}
+
+function relaxTextOverlaps(
+  nodes: SimNode[],
+  width: number,
+  height: number,
+): void {
+  for (let pass = 0; pass < 48; pass++) {
+    let moved = false;
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const ax = a.x ?? 0;
+        const ay = a.y ?? 0;
+        const bx = b.x ?? 0;
+        const by = b.y ?? 0;
+        const aBox = textBox(a);
+        const bBox = textBox(b);
+        const overlapX = (aBox.width + bBox.width) / 2 - Math.abs(ax - bx);
+        const overlapY = (aBox.height + bBox.height) / 2 - Math.abs(ay - by);
+
+        if (overlapX <= 0 || overlapY <= 0) continue;
+
+        moved = true;
+        if (overlapX < overlapY) {
+          const direction = ax <= bx ? -1 : 1;
+          const shift = overlapX / 2 + 1;
+          a.x = ax + direction * shift;
+          b.x = bx - direction * shift;
+        } else {
+          const direction = ay <= by ? -1 : 1;
+          const shift = overlapY / 2 + 1;
+          a.y = ay + direction * shift;
+          b.y = by - direction * shift;
+        }
+      }
+    }
+
+    clampToCanvas(nodes, width, height);
+    if (!moved) return;
   }
 }
 
 function buildSimulation(
   nodes: SimNode[],
-  edges: SimEdge[],
   width: number,
   height: number,
   params: ForceParams,
-): Simulation<SimNode, SimEdge> {
-  const sim = forceSimulation(nodes)
-    .alphaDecay(0.02)
-    .force(
-      "charge",
-      forceManyBody<SimNode>().strength(
-        (d) => -params.chargeStrength * Math.sqrt(d.frequency),
-      ),
-    )
+): Simulation<SimNode, undefined> {
+  return forceSimulation(nodes)
+    .force("charge", forceManyBody<SimNode>().strength(-params.chargeStrength))
     .force(
       "x",
       forceX<SimNode>()
-        .x((d) => CATEGORY_CENTROIDS[d.category].fx * width)
+        .x((node) => CATEGORY_CENTROIDS[node.category].fx * width)
         .strength(params.clusterStrength),
     )
     .force(
       "y",
       forceY<SimNode>()
-        .y((d) => CATEGORY_CENTROIDS[d.category].fy * height)
+        .y((node) => CATEGORY_CENTROIDS[node.category].fy * height)
         .strength(params.clusterStrength),
     )
     .force(
       "collide",
       forceCollide<SimNode>()
-        .radius((d) => d.radius)
-        .strength(0.9)
-        .iterations(2),
-    )
-    .force(
-      "link",
-      forceLink<SimNode, SimEdge>(edges)
-        .id((d) => d.term)
-        .distance(params.edgeDistance)
-        .strength(params.edgeStrength),
+        .radius((node) => node.radius)
+        .strength(0.72)
+        .iterations(3),
     );
-  return sim;
 }
