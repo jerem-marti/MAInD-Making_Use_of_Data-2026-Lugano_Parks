@@ -20,8 +20,11 @@ import styles from "./Beat06Map.module.css";
 
 const MAX_DIAMETER = 180;
 const MIN_DIAMETER = 32;
-const ONBOARDING_STORAGE_KEY = "beat06-onboarding-seen";
 const ONBOARDING_REVEAL_THRESHOLD = 0.7;
+
+// Module-level so the dismissal survives Beat06Map remounts within a single
+// page load (e.g. round-trips through ParkView), but resets on reload.
+let onboardingDismissedThisLoad = false;
 
 type ViewportSize = {
   width: number;
@@ -154,21 +157,11 @@ function toBlobWeights(categoryWeights: Record<string, number>): BlobV2Weights {
 }
 
 function readOnboardingDismissed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.sessionStorage.getItem(ONBOARDING_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
+  return onboardingDismissedThisLoad;
 }
 
 function persistOnboardingDismissed() {
-  if (typeof window === "undefined") return;
-  try {
-    window.sessionStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
-  } catch {
-    // sessionStorage may be unavailable (private mode) — silently degrade.
-  }
+  onboardingDismissedThisLoad = true;
 }
 
 type Beat06MapProps = {
