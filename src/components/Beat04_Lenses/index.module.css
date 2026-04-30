@@ -83,8 +83,7 @@
   line-height: 1.4;
 }
 
-.english,
-.italian {
+.english {
   margin: 0;
   font-family: "Inter", sans-serif;
   font-size: var(--text-base, 15px);
@@ -94,11 +93,6 @@
 
 .english {
   color: var(--ink, var(--color-text-secondary));
-}
-
-.italian {
-  color: var(--ink-muted, var(--color-text-tertiary));
-  font-style: italic;
 }
 
 .tensionNote {
