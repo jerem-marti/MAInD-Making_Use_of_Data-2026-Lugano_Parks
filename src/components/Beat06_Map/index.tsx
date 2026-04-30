@@ -293,7 +293,7 @@ export function Beat06Map({
 
         <div className={styles.mapActions}>
           <button
-            className="btn-primary"
+            className="btn-cta"
             onClick={onFeedbackClick}
             type="button"
           >
