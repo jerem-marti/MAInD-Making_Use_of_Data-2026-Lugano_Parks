@@ -75,9 +75,20 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+type WordVisualState = "pending" | "active" | "revealed";
+
+function getWordState(taggedIdx: number, revealStep: number): WordVisualState {
+  if (revealStep < 0 || taggedIdx > revealStep) return "pending";
+  if (taggedIdx === revealStep) return "active";
+  return "revealed";
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
+
+const STEP_MS = 1400;
+const START_DELAY_MS = 400;
 
 export function FeedbackView() {
   const {
@@ -92,6 +103,12 @@ export function FeedbackView() {
   const [text, setText] = useState("");
   const [phase, setPhase] = useState<"input" | "result">("input");
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [revealStep, setRevealStep] = useState(-1);
+
+  // Indices into tokens[] that have a category match
+  const taggedIndices = tokens
+    .map((t, i) => (t.category ? i : -1))
+    .filter((i) => i >= 0);
 
   const scheduleExit = useCallback((afterExit: () => void) => {
     if (exitTimerRef.current !== null) return;
@@ -116,6 +133,38 @@ export function FeedbackView() {
     setTokens(result);
     setPhase("result");
   }, [text]);
+
+  // Sequential word reveal once result phase begins
+  useEffect(() => {
+    if (phase !== "result") return;
+
+    if (prefersReducedMotion()) {
+      setRevealStep(taggedIndices.length);
+      return;
+    }
+
+    const timers: number[] = [];
+
+    taggedIndices.forEach((_, step) => {
+      timers.push(
+        window.setTimeout(
+          () => setRevealStep(step),
+          START_DELAY_MS + step * STEP_MS,
+        ),
+      );
+    });
+
+    // "done" — after last word has been active for STEP_MS
+    timers.push(
+      window.setTimeout(
+        () => setRevealStep(taggedIndices.length),
+        START_DELAY_MS + taggedIndices.length * STEP_MS,
+      ),
+    );
+
+    return () => timers.forEach(window.clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   useEffect(() => {
     returnFocusRef.current =
@@ -173,8 +222,8 @@ export function FeedbackView() {
     return () => window.removeEventListener("keydown", handleKeydown, { capture: true });
   }, [close]);
 
-  // Unique categories present in the result tokens
-  const foundCategories = phase === "result"
+  const isDone = revealStep >= taggedIndices.length && revealStep >= 0;
+  const foundCategories = isDone
     ? ([...new Set(tokens.map((t) => t.category).filter(Boolean))] as Category[])
     : [];
 
@@ -206,6 +255,7 @@ export function FeedbackView() {
 
         <p className={`t-display-m ${styles.fvQuestion}`}>What is your ideal park?</p>
 
+        {/* ── Input phase ── */}
         {phase === "input" && (
           <div className={styles.inputSection}>
             <textarea
@@ -227,14 +277,26 @@ export function FeedbackView() {
           </div>
         )}
 
+        {/* ── Result phase ── */}
         {phase === "result" && (
           <div className={styles.resultSection}>
+            {/* Categorised text */}
             <p className={styles.resultText}>
-              {tokens.map((token, i) => (
-                <span key={i}>
-                  {token.category ? (
+              {tokens.map((token, i) => {
+                if (!token.category) {
+                  return (
+                    <span key={i}>
+                      {token.text}
+                      {i < tokens.length - 1 ? " " : ""}
+                    </span>
+                  );
+                }
+                const taggedIdx = taggedIndices.indexOf(i);
+                const wordVisualState = getWordState(taggedIdx, revealStep);
+                return (
+                  <span key={i}>
                     <span
-                      className={styles.taggedWord}
+                      className={`${styles.taggedWord} ${styles[wordVisualState]}`}
                       style={
                         {
                           "--word-color": `var(${CATEGORY_TOKENS[token.category]})`,
@@ -243,33 +305,62 @@ export function FeedbackView() {
                     >
                       {token.text}
                     </span>
-                  ) : (
-                    token.text
-                  )}
-                  {i < tokens.length - 1 ? " " : ""}
-                </span>
-              ))}
+                    {i < tokens.length - 1 ? " " : ""}
+                  </span>
+                );
+              })}
             </p>
 
-            {foundCategories.length > 0 && (
-              <div className={styles.legend}>
-                {foundCategories.map((cat) => (
-                  <span key={cat} className={styles.legendItem}>
-                    <span
-                      className={styles.legendDot}
-                      style={{ background: `var(${CATEGORY_TOKENS[cat]})` }}
-                    />
-                    {CATEGORY_LABELS[cat]}
-                  </span>
-                ))}
+            {/* Caption region — fixed height to prevent layout shift */}
+            <div className={styles.captionRegion} aria-live="polite">
+              {revealStep >= 0 && revealStep < taggedIndices.length && (() => {
+                const activeToken = tokens[taggedIndices[revealStep]!]!;
+                return (
+                  <p
+                    className={styles.activeCaption}
+                    key={revealStep}
+                    style={{
+                      color: `var(${CATEGORY_TOKENS[activeToken.category!]})`,
+                    }}
+                  >
+                    {CATEGORY_LABELS[activeToken.category!]}
+                  </p>
+                );
+              })()}
+
+              {taggedIndices.length === 0 && revealStep >= 0 && (
+                <p
+                  className={styles.activeCaption}
+                  style={{ color: "var(--color-text-tertiary)" }}
+                >
+                  No words matched our taxonomy
+                </p>
+              )}
+            </div>
+
+            {/* Legend + Done — appear after all words revealed */}
+            {isDone && (
+              <div className={styles.doneSection}>
+                {foundCategories.length > 0 && (
+                  <div className={styles.legend}>
+                    {foundCategories.map((cat) => (
+                      <span key={cat} className={styles.legendItem}>
+                        <span
+                          className={styles.legendDot}
+                          style={{ background: `var(${CATEGORY_TOKENS[cat]})` }}
+                        />
+                        {CATEGORY_LABELS[cat]}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className={styles.fvActions}>
+                  <button className="btn-primary" onClick={close} type="button">
+                    Done
+                  </button>
+                </div>
               </div>
             )}
-
-            <div className={styles.fvActions}>
-              <button className="btn-primary" onClick={close} type="button">
-                Done
-              </button>
-            </div>
           </div>
         )}
       </div>

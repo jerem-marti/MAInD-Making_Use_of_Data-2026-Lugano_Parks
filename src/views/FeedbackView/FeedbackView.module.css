@@ -7,7 +7,8 @@
   margin: 0 0 var(--space-5);
 }
 
-/* Input / result section entrance animation */
+/* ── Entrance animations ──────────────────────────────────────────── */
+
 .inputSection,
 .resultSection {
   animation: fv-fade-in 280ms var(--ease) both;
@@ -24,7 +25,8 @@
   }
 }
 
-/* Textarea */
+/* ── Input phase ─────────────────────────────────────────────────── */
+
 .fvTextarea {
   display: block;
   width: 100%;
@@ -51,11 +53,12 @@
   border-color: var(--color-text-primary);
 }
 
-/* Shared action row */
+/* ── Shared action row ───────────────────────────────────────────── */
+
 .fvActions {
   display: flex;
   justify-content: flex-end;
-  margin-top: var(--space-5);
+  margin-top: var(--space-4);
 }
 
 .fvActions button:disabled {
@@ -63,27 +66,77 @@
   cursor: default;
 }
 
-/* Result: categorised text */
+/* ── Result phase: text ──────────────────────────────────────────── */
+
 .resultText {
-  margin: 0 0 var(--space-4);
+  margin: 0;
   font-size: 16px;
   line-height: 1.85;
   color: var(--color-text-secondary);
 }
 
+/* Base tagged word — colour + underline transitions */
 .taggedWord {
   display: inline;
-  color: var(--word-color);
-  border-bottom: 1.5px solid var(--word-color);
+  border-radius: 3px;
   padding-bottom: 1px;
+  transition:
+    color 400ms var(--ease),
+    box-shadow 400ms var(--ease),
+    border-bottom-color 400ms var(--ease);
 }
 
-/* Category legend */
+/* Word states */
+.pending {
+  color: var(--color-text-tertiary);
+  border-bottom: 1.5px solid transparent;
+}
+
+.active {
+  color: var(--word-color);
+  border-bottom: 1.5px solid var(--word-color);
+  box-shadow: 0 0 0 0.22em color-mix(in srgb, var(--word-color) 22%, transparent);
+}
+
+.revealed {
+  color: var(--word-color);
+  border-bottom: 1.5px solid var(--word-color);
+  box-shadow: none;
+}
+
+/* ── Caption region ──────────────────────────────────────────────── */
+
+.captionRegion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: var(--space-4) 0 0;
+}
+
+.activeCaption {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-align: center;
+  text-transform: uppercase;
+  animation: fv-fade-in 300ms var(--ease) both;
+}
+
+/* ── Done section ────────────────────────────────────────────────── */
+
+.doneSection {
+  animation: fv-fade-in 400ms var(--ease) both;
+}
+
+/* Legend */
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3) var(--space-5);
-  margin-bottom: var(--space-5);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
   padding-top: var(--space-3);
   border-top: 0.5px solid var(--color-border-light);
 }
@@ -106,6 +159,8 @@
   flex-shrink: 0;
 }
 
+/* ── Responsive ──────────────────────────────────────────────────── */
+
 @media (max-width: 560px) {
   .fvModal {
     width: calc(100vw - 32px);
@@ -113,10 +168,18 @@
   }
 }
 
+/* ── Reduced motion ──────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   .inputSection,
-  .resultSection {
+  .resultSection,
+  .activeCaption,
+  .doneSection {
     animation: none;
+  }
+
+  .taggedWord {
+    transition: none;
   }
 
   .fvTextarea {
