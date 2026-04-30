@@ -401,7 +401,8 @@ export function Beat06Map({
         </svg>
 
         <header className={styles.mapHeader} style={fadeStyle(introProgress)}>
-          <h1 className="t-display-m">Perception Park Map</h1>
+          <h1 className="t-display-m">An Aura of Words</h1>
+          <p className="t-body-s">Green Spaces of Lugano</p>
         </header>
 
         <aside

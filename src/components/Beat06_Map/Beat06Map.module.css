@@ -258,13 +258,19 @@
 }
 
 .mapHeader {
-  top: clamp(var(--space-5), 8vh, var(--space-8));
-  left: clamp(var(--space-5), 7vw, var(--space-8));
+  top: var(--space-5);
+  left: var(--space-5);
+  max-width: min(320px, calc(100% - 240px));
 }
 
 .mapHeader h1 {
   margin: 0;
   color: var(--color-text-primary);
+}
+
+.mapHeader p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
 }
 
 .calloutStep {
@@ -362,10 +368,17 @@
   }
 
   .introNote,
+  .mapHeader,
   .callout {
     left: var(--space-4);
     width: min(320px, calc(100% - var(--space-6)));
     padding: var(--space-3);
+  }
+
+  .mapHeader {
+    top: var(--space-4);
+    max-width: calc(100% - var(--space-6));
+    padding: 0;
   }
 
   .introNote {

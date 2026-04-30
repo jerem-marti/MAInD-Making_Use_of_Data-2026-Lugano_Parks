@@ -62,21 +62,33 @@ export function ParkHeader({
             event.preventDefault();
             (onBackToMap ?? backToMap)();
           }}
+          tabIndex={5}
         >
           ← Back to map
         </a>
         <div className="row1-right">
-          <Blob
-            ariaLabel={`${park.name} aura`}
-            breathing={false}
-            className={styles.aura}
-            colorOrder="ascending"
-            key={park.id}
-            seed={position * 17 + 5}
-            size={40}
-            weights={weights}
-          />
-          <button className="btn-primary" onClick={openCompare} type="button">
+          <span
+            aria-label={`${park.name} aura`}
+            className={styles.auraFrame}
+            role="img"
+            tabIndex={3}
+          >
+            <Blob
+              breathing={false}
+              className={styles.aura}
+              colorOrder="ascending"
+              key={park.id}
+              seed={position * 17 + 5}
+              size={40}
+              weights={weights}
+            />
+          </span>
+          <button
+            className="btn-primary"
+            onClick={openCompare}
+            tabIndex={4}
+            type="button"
+          >
             Compare all five
           </button>
         </div>
@@ -87,6 +99,7 @@ export function ParkHeader({
             aria-label="Previous park"
             className="cycle"
             onClick={() => cyclePark("previous")}
+            tabIndex={1}
             type="button"
           >
             ‹
@@ -115,6 +128,7 @@ export function ParkHeader({
             aria-label="Next park"
             className="cycle"
             onClick={() => cyclePark("next")}
+            tabIndex={2}
             type="button"
           >
             ›
