@@ -1,0 +1,16 @@
+.view {
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+}
+
+.canvas {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background: var(--color-bg);
+}

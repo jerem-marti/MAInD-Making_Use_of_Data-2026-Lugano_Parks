@@ -38,6 +38,7 @@ type MapLibreMapProps = {
   expandProgress: number;
   labelsProgress: number;
   reducedMotion: boolean;
+  onParkClick?: (parkId: string) => void;
   onMarkerPositionsChange?: (
     positions: Record<string, MarkerScreenPosition>,
   ) => void;
@@ -156,11 +157,13 @@ function ParkMarkerView({
   progress,
   labelsProgress,
   reducedMotion,
+  onParkClick,
 }: {
   marker: ParkMarker;
   progress: number;
   labelsProgress: number;
   reducedMotion: boolean;
+  onParkClick?: (parkId: string) => void;
 }) {
   const markerProgress = bloomProgress(progress, marker.order, reducedMotion);
   const wordCount = marker.totalWords.toLocaleString("en-US");
@@ -174,7 +177,7 @@ function ParkMarkerView({
       aria-label={`${marker.name}, ${wordCount} reviewed words, strongest lenses: ${strongestLensSummary}`}
       className={styles.markerButton}
       onClick={() => {
-        console.log("Park clicked:", marker.name);
+        onParkClick?.(marker.id);
       }}
       style={markerStyle(marker, markerProgress, labelsProgress)}
       tabIndex={markerProgress > 0.5 ? 0 : -1}
@@ -225,6 +228,7 @@ export function MapLibreMap({
   expandProgress,
   labelsProgress,
   reducedMotion,
+  onParkClick,
   onMarkerPositionsChange,
 }: MapLibreMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -322,6 +326,7 @@ export function MapLibreMap({
         <ParkMarkerView
           labelsProgress={labelsProgress}
           marker={marker}
+          onParkClick={onParkClick}
           progress={progress}
           reducedMotion={reducedMotion}
         />,
@@ -336,7 +341,7 @@ export function MapLibreMap({
         record.marker.remove();
       });
     markersRef.current = records;
-  }, [labelsProgress, markers, progress, reducedMotion]);
+  }, [labelsProgress, markers, onParkClick, progress, reducedMotion]);
 
   return (
     <div className={styles.mapShell}>

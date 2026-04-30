@@ -169,7 +169,12 @@ function toBlobWeights(categoryWeights: Record<string, number>): BlobV2Weights {
   return weights;
 }
 
-export function Beat06Map() {
+type Beat06MapProps = {
+  onCompareClick?: () => void;
+  onParkClick?: (parkId: string) => void;
+};
+
+export function Beat06Map({ onCompareClick, onParkClick }: Beat06MapProps) {
   const progress = useScrollProgressValue();
   const reducedMotion = useReducedMotion();
   const viewport = useViewportSize();
@@ -312,10 +317,19 @@ export function Beat06Map() {
           expandProgress={expandProgress}
           labelsProgress={labelsProgress}
           markers={markers}
+          onParkClick={onParkClick}
           onMarkerPositionsChange={handleMarkerPositionsChange}
           progress={progress}
           reducedMotion={reducedMotion}
         />
+
+        <button
+          className={`${styles.compareButton} btn-primary`}
+          onClick={onCompareClick}
+          type="button"
+        >
+          Compare all five
+        </button>
 
         <svg className={styles.annotationArrows} aria-hidden="true">
           <defs>

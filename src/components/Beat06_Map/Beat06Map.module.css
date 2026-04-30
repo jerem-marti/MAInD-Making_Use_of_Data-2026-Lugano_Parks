@@ -54,6 +54,13 @@
   font-size: 10px;
 }
 
+.compareButton {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: 50;
+}
+
 .markerRoot {
   line-height: 0;
   overflow: visible;

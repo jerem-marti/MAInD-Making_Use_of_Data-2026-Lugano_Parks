@@ -34,6 +34,7 @@ const EXAMPLE_EXCERPTS_PER_PARK = 8;
 const POOL_TARGET_SIZE = 30;
 const EXCERPT_MIN_WORDS = 4;
 const EXCERPT_MAX_WORDS = 16;
+const WORD_NETWORK_MIN_FREQUENCY = 2;
 
 type Row = {
   park_name: string;
@@ -287,10 +288,22 @@ if (!existsSync(richOutDir)) mkdirSync(richOutDir, { recursive: true });
 writeFileSync(OUT_RICH, JSON.stringify(result, null, 2));
 
 // ─────────────────────────────────────────────────────────────────────
-// Write Act I park summary + cross-park excerpts pool
+// Write Act I park summary + Act II word-network blocks + cross-park
+// excerpts pool.
 // ─────────────────────────────────────────────────────────────────────
 
 type Act1TopTerm = { term: string; category: Category; frequency: number };
+type Act2WordNetworkNode = {
+  id: string;
+  term: string;
+  category: Category;
+  frequency: number;
+  exampleExcerpt: string;
+};
+type Act2WordNetwork = {
+  nodes: Act2WordNetworkNode[];
+  edges: Edge[];
+};
 type Act1Park = {
   id: string;
   name: string;
@@ -299,10 +312,56 @@ type Act1Park = {
   categoryWeights: Record<Category, number>;
   topTerms: Act1TopTerm[];
   exampleExcerpts: string[];
+  wordNetwork: Act2WordNetwork;
 };
 
 const act1: { parks: Act1Park[] } = { parks: [] };
 let unmappedParkIds = 0;
+let droppedLowFrequencyNetworkEdges = 0;
+
+function buildWordNetwork(
+  nodes: Node[],
+  edges: Edge[],
+): { wordNetwork: Act2WordNetwork; droppedEdges: number } {
+  const networkNodes: Act2WordNetworkNode[] = nodes
+    .filter((node) => node.frequency >= WORD_NETWORK_MIN_FREQUENCY)
+    .map((node) => ({
+      id: node.term,
+      term: node.term,
+      category: node.category,
+      frequency: node.frequency,
+      exampleExcerpt: node.exampleExcerpt,
+    }));
+
+  const networkTermSet = new Set(networkNodes.map((node) => node.id));
+  let droppedEdges = 0;
+  const networkEdges = edges
+    .filter((edge) => {
+      const keep =
+        networkTermSet.has(edge.source) && networkTermSet.has(edge.target);
+      if (!keep) droppedEdges++;
+      return keep;
+    })
+    .map((edge) => ({
+      source: edge.source,
+      target: edge.target,
+      weight: edge.weight,
+    }))
+    .sort(
+      (a, b) =>
+        b.weight - a.weight ||
+        a.source.localeCompare(b.source) ||
+        a.target.localeCompare(b.target),
+    );
+
+  return {
+    wordNetwork: {
+      nodes: networkNodes,
+      edges: networkEdges,
+    },
+    droppedEdges,
+  };
+}
 
 for (const p of result.parks) {
   const acc = parks.get(p.name);
@@ -331,6 +390,8 @@ for (const p of result.parks) {
       category: n.category,
       frequency: n.frequency,
     }));
+  const { wordNetwork, droppedEdges } = buildWordNetwork(p.nodes, p.edges);
+  droppedLowFrequencyNetworkEdges += droppedEdges;
 
   act1.parks.push({
     id: id ?? p.id,
@@ -340,6 +401,7 @@ for (const p of result.parks) {
     categoryWeights,
     topTerms,
     exampleExcerpts: excerpts.slice(0, EXAMPLE_EXCERPTS_PER_PARK),
+    wordNetwork,
   });
 }
 
@@ -399,6 +461,9 @@ console.log(
   `  edges dropped because an endpoint wasn't in the park's node list: ${droppedDanglingEdges}`,
 );
 console.log(
+  `  Act II word-network edges dropped by frequency >= ${WORD_NETWORK_MIN_FREQUENCY} endpoint filter: ${droppedLowFrequencyNetworkEdges}`,
+);
+console.log(
   `  UTF-8 mojibake substrings replaced (e.g. "√©" → "é"): ${mojibakeFixCount}`,
 );
 console.log(
@@ -414,6 +479,7 @@ for (const p of act1.parks) {
   console.log(
     `  ${p.name.padEnd(28)} id=${p.id.padEnd(14)} ` +
       `top=${p.topTerms.length} ` +
-      `excerpts=${p.exampleExcerpts.length}`,
+      `excerpts=${p.exampleExcerpts.length} ` +
+      `wordNetwork=${p.wordNetwork.nodes.length} nodes/${p.wordNetwork.edges.length} edges`,
   );
 }
