@@ -60,6 +60,7 @@ export function ParkHeader() {
             ariaLabel={`${park.name} aura`}
             breathing={false}
             className={styles.aura}
+            colorOrder="ascending"
             seed={position * 17 + 5}
             size={40}
             weights={weights}
