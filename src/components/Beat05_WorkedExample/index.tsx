@@ -294,8 +294,8 @@ function lineState(
   progress: number,
   frame: TagFrame,
   reducedMotion: boolean,
-): { opacity: number; dashOffset: number } {
-  if (reducedMotion) return { opacity: 0.2, dashOffset: 0 };
+): { opacity: number; dashOffset: number; highlight: number } {
+  if (reducedMotion) return { opacity: 0.2, dashOffset: 0, highlight: 0 };
 
   const [start, end] = frame.range;
   const drawEnd = start + (end - start) * 0.65;
@@ -309,9 +309,12 @@ function lineState(
         ? drawProgress
         : 1 - traceProgress * 0.8;
 
+  const highlight = drawProgress >= 1 ? Math.max(0, 1 - traceProgress) : 0;
+
   return {
     opacity,
     dashOffset: 1 - drawProgress,
+    highlight,
   };
 }
 
@@ -518,6 +521,9 @@ export function Beat05WorkedExample() {
                 opacity: state.opacity * connectorTraceOpacity,
                 stroke: LENS_VAR[frame.lens],
                 strokeDashoffset: state.dashOffset,
+                filter: state.highlight > 0
+                  ? `saturate(${1 + state.highlight * 0.7}) brightness(${1 + state.highlight * 0.35})`
+                  : undefined,
               }}
             />
           );
@@ -780,7 +786,8 @@ export function Beat05WorkedExample() {
                 countOpacity={activation}
                 preserveLabelCase
                 dotColor={dotColor}
-                style={labelColor ? { color: labelColor } : undefined}
+                size={14}
+                style={{ fontSize: '15px', ...(labelColor ? { color: labelColor } : {}) }}
               />
             </span>
           );
