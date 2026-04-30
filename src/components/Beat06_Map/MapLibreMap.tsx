@@ -85,6 +85,7 @@ function bloomProgress(
 function fitToMarkers(
   map: maplibregl.Map,
   bounds: maplibregl.LngLatBounds,
+  markers: ParkMarker[],
   expandProgress: number,
 ) {
   const container = map.getContainer();
@@ -92,19 +93,41 @@ function fitToMarkers(
   const height = container.clientHeight || 480;
   const fullscreenProgress = smooth(clamp(expandProgress));
   const compact = width <= 720;
+
+  // The label sits below the marker center by `--label-offset`, which matches
+  // the value computed in markerStyle. Reserve enough bottom padding so the
+  // largest marker's halo + label stay clear of the screen edge.
+  const maxDiameter = markers.reduce(
+    (max, marker) => Math.max(max, marker.diameter),
+    0,
+  );
+  const maxRadius = maxDiameter / 2;
+  const maxLabelOffset = Math.min(76, Math.max(18, maxDiameter * 0.42));
+  const labelClearance = Math.ceil(maxLabelOffset + 14); // label height + breathing
+  const markerHaloBottom = Math.ceil(
+    Math.max(maxRadius, labelClearance) + 18,
+  );
+  const markerHaloTop = Math.ceil(maxRadius + 14);
+
   const feedHorizontal = clamp(width * 0.13, 48, 120);
   const fullHorizontal = compact
     ? clamp(width * 0.18, 64, 76)
     : clamp(width * 0.05, 44, 72);
   const feedVertical = clamp(height * 0.16, 48, 80);
-  const fullVertical = compact
-    ? clamp(height * 0.08, 40, 72)
-    : clamp(height * 0.06, 44, 64);
+  const fullVerticalBottom = compact
+    ? Math.max(markerHaloBottom, clamp(height * 0.14, 96, 140))
+    : Math.max(markerHaloBottom, clamp(height * 0.10, 100, 132));
+  const fullVerticalTop = compact
+    ? Math.max(markerHaloTop, clamp(height * 0.08, 56, 96))
+    : Math.max(markerHaloTop, clamp(height * 0.06, 60, 96));
   const horizontal = Math.round(
     lerp(feedHorizontal, fullHorizontal, fullscreenProgress),
   );
-  const vertical = Math.round(
-    lerp(feedVertical, fullVertical, fullscreenProgress),
+  const verticalTop = Math.round(
+    lerp(feedVertical, fullVerticalTop, fullscreenProgress),
+  );
+  const verticalBottom = Math.round(
+    lerp(feedVertical, fullVerticalBottom, fullscreenProgress),
   );
   const overlaySpace = compact
     ? 0
@@ -120,9 +143,9 @@ function fitToMarkers(
   map.fitBounds(bounds, {
     animate: false,
     padding: {
-      top: vertical,
+      top: verticalTop,
       right: horizontal,
-      bottom: vertical,
+      bottom: verticalBottom,
       left: Math.min(Math.round(width * 0.45), horizontal + overlaySpace),
     },
     maxZoom,
@@ -167,7 +190,7 @@ function updateMapProjection(
 ) {
   map.resize();
 
-  fitToMarkers(map, bounds, expandProgress);
+  fitToMarkers(map, bounds, markers, expandProgress);
   onMarkerPositionsChange?.(projectMarkerPositions(map, markers));
 }
 
