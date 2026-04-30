@@ -1,0 +1,125 @@
+.fvModal {
+  width: min(560px, calc(100vw - 48px));
+  padding: clamp(32px, 5vw, 48px);
+}
+
+.fvQuestion {
+  margin: 0 0 var(--space-5);
+}
+
+/* Input / result section entrance animation */
+.inputSection,
+.resultSection {
+  animation: fv-fade-in 280ms var(--ease) both;
+}
+
+@keyframes fv-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Textarea */
+.fvTextarea {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  padding: var(--space-3) var(--space-4);
+  border: 0.5px solid var(--color-border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 200ms ease;
+}
+
+.fvTextarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.fvTextarea:focus {
+  outline: none;
+  border-color: var(--color-text-primary);
+}
+
+/* Shared action row */
+.fvActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-5);
+}
+
+.fvActions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Result: categorised text */
+.resultText {
+  margin: 0 0 var(--space-4);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--color-text-secondary);
+}
+
+.taggedWord {
+  display: inline;
+  color: var(--word-color);
+  border-bottom: 1.5px solid var(--word-color);
+  padding-bottom: 1px;
+}
+
+/* Category legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 0.5px solid var(--color-border-light);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .fvModal {
+    width: calc(100vw - 32px);
+    padding: 24px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inputSection,
+  .resultSection {
+    animation: none;
+  }
+
+  .fvTextarea {
+    transition: none;
+  }
+}
