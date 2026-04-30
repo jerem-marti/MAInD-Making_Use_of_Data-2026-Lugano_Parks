@@ -1,0 +1,58 @@
+.fv-modal {
+  width: min(560px, calc(100vw - 48px));
+  padding: clamp(32px, 5vw, 48px);
+}
+
+.fv-question {
+  margin: 0 0 var(--space-5);
+}
+
+.fv-textarea {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  padding: var(--space-3) var(--space-4);
+  border: 0.5px solid var(--color-border-medium);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 200ms ease;
+}
+
+.fv-textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.fv-textarea:focus {
+  outline: none;
+  border-color: var(--color-text-primary);
+}
+
+.fv-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-5);
+}
+
+.fv-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 560px) {
+  .fv-modal {
+    width: calc(100vw - 32px);
+    padding: 24px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fv-textarea {
+    transition: none;
+  }
+}
