@@ -233,7 +233,7 @@ A 90–120 second guided traversal of the live demo: from opening hero, through 
 
 ## Credits / Colophon
 
-**Author.** Jérémy Martin · jeremy_martin@bluewin.ch
+**Authors.** Annabelle Conron · Nerea Asensio · Nicholas Vos · Jérémy Martin · Julie Alme
 **Course.** SUPSI MAIND-S2 — *Make Use of Data*, Master in Advanced Interaction Design, Semester 2
 **Year.** 2026
 
