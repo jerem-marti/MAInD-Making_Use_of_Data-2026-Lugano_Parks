@@ -21,7 +21,14 @@
       "mcp__Claude_Preview__preview_start",
       "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
-      "Read(//c/Users/jerem/AppData/Local/**)"
+      "Read(//c/Users/jerem/AppData/Local/**)",
+      "Bash(python -m http.server 8765)",
+      "Bash(echo \"started $!\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/index.html)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/documentation.md)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/print.css)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} | size %{size_download}\\\\n\" http://localhost:8765/assets/img/phase3/01-ciani.png)",
+      "Bash(pkill -f \"http.server 8765\")"
     ]
   }
 }

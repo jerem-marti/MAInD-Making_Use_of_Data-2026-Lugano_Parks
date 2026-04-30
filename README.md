@@ -4,6 +4,8 @@ A small data-visualisation website about how Lugano's parks are perceived
 through their Google reviews. Designed to be projected during in-person,
 facilitator-led group discussions about public space.
 
+> Project documentation (abstract, dataset, methodology, gallery, video walkthrough): [`docs/documentation.md`](./docs/documentation.md). PDF export workflow in [`docs/README.md`](./docs/README.md).
+
 ## What's in this repo
 
 The project is split into two acts that share one Vite app:

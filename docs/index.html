@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>An Aura of Words — Green Spaces of Lugano · Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./print.css" />
+  </head>
+  <body>
+    <article id="doc" class="doc">
+      <p style="color:#9A9A9A;font-size:13px;">Loading documentation…</p>
+    </article>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script>
+      (async () => {
+        const article = document.getElementById("doc");
+        try {
+          const res = await fetch("./documentation.md", { cache: "no-cache" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const md = await res.text();
+
+          // Allow inline HTML (figures, blockquote callouts, lens swatches).
+          marked.setOptions({ gfm: true, breaks: false });
+
+          article.innerHTML = marked.parse(md);
+
+          // External links: open in new tab.
+          article.querySelectorAll('a[href^="http"]').forEach((a) => {
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+          });
+        } catch (err) {
+          article.innerHTML =
+            '<p style="color:#b00020">Could not load <code>documentation.md</code>. ' +
+            "If you opened this file directly with <code>file://</code>, run a tiny " +
+            "static server instead: <code>npx serve docs</code> (or any equivalent). " +
+            "Error: " + err.message + "</p>";
+        }
+      })();
+    </script>
+  </body>
+</html>
